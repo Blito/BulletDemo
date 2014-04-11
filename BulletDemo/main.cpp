@@ -72,6 +72,21 @@ void tileTexture(SDL_Texture * texture, SDL_Renderer * ren) {
 	}
 }
 
+void renderScene(SDL_Renderer * ren, SDL_Texture * background, SDL_Texture * image, int xI, int yI) {
+	// Render
+	SDL_RenderClear(ren);
+
+	// Tiled background
+	tileTexture(background, ren);
+
+	// Image
+	int iW, iH;
+	SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
+	renderTexture(image, ren, SCREEN_WIDTH/2 - iW/2 + xI, SCREEN_HEIGHT/2 - iH/2 + yI);
+
+	SDL_RenderPresent(ren);
+}
+
 int main(int argc, char** argv)
 {
 	
@@ -102,25 +117,36 @@ int main(int argc, char** argv)
 	if (background == nullptr || image == nullptr)
 		return 4;
 
-	// Render
-	SDL_RenderClear(ren);
+	// image position on screen
+	int xI = 0, yI = 0;
 
-	// Tiled background
-	/*renderTexture(background, ren, 0, 0);
-	renderTexture(background, ren, 0, SCREEN_HEIGHT/2);
-	renderTexture(background, ren, SCREEN_WIDTH/2, 0);
-	renderTexture(background, ren, SCREEN_WIDTH/2, SCREEN_HEIGHT/2);*/
-	tileTexture(background, ren);
-
-	// Image
-	int iW, iH;
-	SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
-	renderTexture(image, ren, SCREEN_WIDTH/2 - iW/2, SCREEN_HEIGHT/2 - iH/2);
-
-	SDL_RenderPresent(ren);
-
-	// Wait
-	SDL_Delay(2000);
+	//Our event structure
+	SDL_Event e;
+	bool quit = false;
+	while (!quit){
+		const Uint8 *keys = SDL_GetKeyboardState(NULL);
+		while (SDL_PollEvent(&e)){
+			if (e.type == SDL_QUIT)
+				quit = true;
+			if (keys[SDL_SCANCODE_UP]) { // Pressed up key
+				yI -= 5;
+			}
+			if (keys[SDL_SCANCODE_DOWN]) { // Pressed down key
+				yI += 5;
+			}
+			if (keys[SDL_SCANCODE_LEFT]) {
+				xI -= 5;
+			}
+			if (keys[SDL_SCANCODE_RIGHT]) {
+				xI += 5;
+			}
+			if (keys[SDL_SCANCODE_ESCAPE]) {
+				quit = true;
+			}
+		}
+		//Render the scene
+		renderScene(ren, background, image, xI, yI);
+	}
 
 	// Clean up
 	SDL_DestroyTexture(background);
@@ -132,4 +158,3 @@ int main(int argc, char** argv)
 
 	return 0;
 }
-
