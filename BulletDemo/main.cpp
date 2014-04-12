@@ -39,6 +39,21 @@ SDL_Texture* loadTexture(const std::string &file, SDL_Renderer *ren){
 }
 
 /**
+* Draw an SDL_Texture to an SDL_Renderer at some destination rect
+* taking a clip of the texture if desired
+* @param tex The source texture we want to draw
+* @param rend The renderer we want to draw too
+* @param dst The destination rectangle to render the texture too
+* @param clip The sub-section of the texture to draw (clipping rect)
+*		default of nullptr draws the entire texture
+*/
+void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst,
+	SDL_Rect *clip = nullptr)
+{
+	SDL_RenderCopy(ren, tex, clip, &dst);
+}
+
+/**
 * Draw an SDL_Texture to an SDL_Renderer at position x, y, preserving
 * the texture's width and height
 * @param tex The source texture we want to draw
@@ -46,14 +61,22 @@ SDL_Texture* loadTexture(const std::string &file, SDL_Renderer *ren){
 * @param x The x coordinate to draw too
 * @param y The y coordinate to draw too
 */
-void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y){
+void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *clip = nullptr){
 	//Setup the destination rectangle to be at the position we want
 	SDL_Rect dst;
 	dst.x = x;
 	dst.y = y;
-	//Query the texture to get its width and height to use
-	SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
-	SDL_RenderCopy(ren, tex, NULL, &dst);
+
+	if (clip != nullptr){
+		dst.w = clip->w;
+		dst.h = clip->h;
+	}
+	else {
+		//Query the texture to get its width and height to use
+		SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
+	}
+
+	renderTexture(tex, ren, dst, clip);
 }
 
 /**
@@ -70,21 +93,6 @@ void tileTexture(SDL_Texture * texture, SDL_Renderer * ren) {
 		}
 		x += iW;
 	}
-}
-
-void renderScene(SDL_Renderer * ren, SDL_Texture * background, SDL_Texture * image, int xI, int yI) {
-	// Render
-	SDL_RenderClear(ren);
-
-	// Tiled background
-	tileTexture(background, ren);
-
-	// Image
-	int iW, iH;
-	SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
-	renderTexture(image, ren, SCREEN_WIDTH/2 - iW/2 + xI, SCREEN_HEIGHT/2 - iH/2 + yI);
-
-	SDL_RenderPresent(ren);
 }
 
 int main(int argc, char** argv)
@@ -113,12 +121,26 @@ int main(int argc, char** argv)
 	}
 
 	SDL_Texture * background = loadTexture("resources/background.bmp", ren);
-	SDL_Texture * image = loadTexture("resources/image.bmp", ren);
+	SDL_Texture * image = loadTexture("resources/image2.bmp", ren);
 	if (background == nullptr || image == nullptr)
 		return 4;
 
-	// image position on screen
-	int xI = 0, yI = 0;
+	//iW and iH are the clip width and height
+	//We'll be drawing only clips so get a center position for the w/h of a clip
+	int iW = 100, iH = 100;
+	int x = SCREEN_WIDTH / 2 - iW / 2;
+	int y = SCREEN_HEIGHT / 2 - iH / 2;
+
+	//Setup the clips for our image
+	SDL_Rect clips[4];
+	for (int i = 0; i < 4; ++i){
+		clips[i].x = i / 2 * iW;
+		clips[i].y = i % 2 * iH;
+		clips[i].w = iW;
+		clips[i].h = iH;
+	}
+	//Specify a default clip to start with
+	int useClip = 0;
 
 	//Our event structure
 	SDL_Event e;
@@ -129,23 +151,30 @@ int main(int argc, char** argv)
 			if (e.type == SDL_QUIT)
 				quit = true;
 			if (keys[SDL_SCANCODE_UP]) { // Pressed up key
-				yI -= 5;
+				y -= 5;
 			}
 			if (keys[SDL_SCANCODE_DOWN]) { // Pressed down key
-				yI += 5;
+				y += 5;
 			}
 			if (keys[SDL_SCANCODE_LEFT]) {
-				xI -= 5;
+				x -= 5;
 			}
 			if (keys[SDL_SCANCODE_RIGHT]) {
-				xI += 5;
+				x += 5;
+			}
+			if (e.type == SDL_MOUSEBUTTONDOWN) {
+				useClip++;
+				useClip %= 4;
 			}
 			if (keys[SDL_SCANCODE_ESCAPE]) {
 				quit = true;
 			}
 		}
+
 		//Render the scene
-		renderScene(ren, background, image, xI, yI);
+		SDL_RenderClear(ren);
+		renderTexture(image, ren, x, y, &clips[useClip]);
+		SDL_RenderPresent(ren);
 	}
 
 	// Clean up
