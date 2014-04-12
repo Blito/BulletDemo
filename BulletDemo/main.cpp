@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <iostream>
 
 const int SCREEN_WIDTH  = 640;
@@ -19,22 +20,10 @@ void logSDLError(std::ostream &os, const std::string &msg){
 * @param ren The renderer to load the texture onto
 * @return the loaded texture, or nullptr if something went wrong.
 */
-SDL_Texture* loadTexture(const std::string &file, SDL_Renderer *ren){
-	//Initialize to nullptr to avoid dangling pointer issues
-	SDL_Texture *texture = nullptr;
-	//Load the image
-	SDL_Surface *loadedImage = SDL_LoadBMP(file.c_str());
-	//If the loading went ok, convert to texture and return the texture
-	if (loadedImage != nullptr){
-		texture = SDL_CreateTextureFromSurface(ren, loadedImage);
-		SDL_FreeSurface(loadedImage);
-		//Make sure converting went ok too
-		if (texture == nullptr)
-			logSDLError(std::cout, "CreateTextureFromSurface");
-	}
-	else
-		logSDLError(std::cout, "LoadBMP");
-
+SDL_Texture* loadTexture(const std::string &file, SDL_Renderer *ren) {
+	SDL_Texture *texture = IMG_LoadTexture(ren, file.c_str());
+	if (texture == nullptr)		
+		logSDLError(std::cout, "LoadTexture");
 	return texture;
 }
 
@@ -104,6 +93,12 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	// Initialize SDL_image for PNG images
+	if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) != IMG_INIT_PNG){
+		logSDLError(std::cout, "IMG_Init");
+		return 1;
+	}
+
 	// Create a window
 	SDL_Window *win = SDL_CreateWindow("Hello World!", 100, 100, 640, 480,
 		SDL_WINDOW_SHOWN);
@@ -121,7 +116,7 @@ int main(int argc, char** argv)
 	}
 
 	SDL_Texture * background = loadTexture("resources/background.bmp", ren);
-	SDL_Texture * image = loadTexture("resources/image2.bmp", ren);
+	SDL_Texture * image = loadTexture("resources/image.png", ren);
 	if (background == nullptr || image == nullptr)
 		return 4;
 
