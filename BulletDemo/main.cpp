@@ -1,182 +1,131 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <iostream>
+#include <SDL2/SDL_opengl.h>
+#include <gl/GLU.h>
 
-const int SCREEN_WIDTH  = 640;
-const int SCREEN_HEIGHT = 480;
+SDL_Window* displayWindow;
+SDL_Renderer* displayRenderer;
 
-/**
-* Log an SDL error with some error message to the output stream of our choice
-* @param os The output stream to write the message too
-* @param msg The error message to write, format will be msg error: SDL_GetError()
-*/
-void logSDLError(std::ostream &os, const std::string &msg){
-	os << msg.c_str() << " error: " << SDL_GetError() << std::endl;
-}
-
-/**
-* Loads a BMP image into a texture on the rendering device
-* @param file The BMP image file to load
-* @param ren The renderer to load the texture onto
-* @return the loaded texture, or nullptr if something went wrong.
-*/
-SDL_Texture* loadTexture(const std::string &file, SDL_Renderer *ren) {
-	SDL_Texture *texture = IMG_LoadTexture(ren, file.c_str());
-	if (texture == nullptr)		
-		logSDLError(std::cout, "LoadTexture");
-	return texture;
-}
-
-/**
-* Draw an SDL_Texture to an SDL_Renderer at some destination rect
-* taking a clip of the texture if desired
-* @param tex The source texture we want to draw
-* @param rend The renderer we want to draw too
-* @param dst The destination rectangle to render the texture too
-* @param clip The sub-section of the texture to draw (clipping rect)
-*		default of nullptr draws the entire texture
-*/
-void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst,
-	SDL_Rect *clip = nullptr)
+void Display_InitGL()
 {
-	SDL_RenderCopy(ren, tex, clip, &dst);
+	/* Enable smooth shading */
+	glShadeModel( GL_SMOOTH );
+
+	/* Set the background black */
+	glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+
+	/* Depth buffer setup */
+	glClearDepth( 1.0f );
+
+	/* Enables Depth Testing */
+	glEnable( GL_DEPTH_TEST );
+
+	/* The Type Of Depth Test To Do */
+	glDepthFunc( GL_LEQUAL );
+
+	/* Really Nice Perspective Calculations */
+	glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
 }
-
-/**
-* Draw an SDL_Texture to an SDL_Renderer at position x, y, preserving
-* the texture's width and height
-* @param tex The source texture we want to draw
-* @param ren The renderer we want to draw too
-* @param x The x coordinate to draw too
-* @param y The y coordinate to draw too
-*/
-void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *clip = nullptr){
-	//Setup the destination rectangle to be at the position we want
-	SDL_Rect dst;
-	dst.x = x;
-	dst.y = y;
-
-	if (clip != nullptr){
-		dst.w = clip->w;
-		dst.h = clip->h;
-	}
-	else {
-		//Query the texture to get its width and height to use
-		SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
-	}
-
-	renderTexture(tex, ren, dst, clip);
-}
-
-/**
- * Tile the texture to fill the screen. Doesn't wrap to the borders.
- */
-void tileTexture(SDL_Texture * texture, SDL_Renderer * ren) {
-	int iW, iH;
-	SDL_QueryTexture(texture, NULL, NULL, &iW, &iH);
-
-	for (int x = 0; x < SCREEN_WIDTH; x++) {
-		for (int y = 0; y < SCREEN_HEIGHT; y++) {
-			renderTexture(texture, ren, x, y);
-			y += iH;
-		}
-		x += iW;
-	}
-}
-
-int main(int argc, char** argv)
+/* function to reset our viewport after a window resize */
+int Display_SetViewport( int width, int height )
 {
-	
-	// Initialize everything
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
-		logSDLError(std::cout, "SDL_Init");
-		return 1;
+	/* Height / width ration */
+	GLfloat ratio;
+
+	/* Protect against a divide by zero */
+	if ( height == 0 ) {
+		height = 1;
 	}
 
-	// Initialize SDL_image for PNG images
-	if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) != IMG_INIT_PNG){
-		logSDLError(std::cout, "IMG_Init");
-		return 1;
+	ratio = ( GLfloat )width / ( GLfloat )height;
+
+	/* Setup our viewport. */
+	glViewport( 0, 0, ( GLsizei )width, ( GLsizei )height );
+
+	/* change to the projection matrix and set our viewing volume. */
+	glMatrixMode( GL_PROJECTION );
+	glLoadIdentity( );
+
+	/* Set our perspective */
+	gluPerspective( 45.0f, ratio, 0.1f, 100.0f );
+
+	/* Make sure we're chaning the model view and not the projection */
+	glMatrixMode( GL_MODELVIEW );
+
+	/* Reset The View */
+	glLoadIdentity( );
+
+	return 1;
+}
+
+void Display_Render()
+{
+	/* Set the background black */
+	glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+	/* Clear The Screen And The Depth Buffer */
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+	/* Move Left 1.5 Units And Into The Screen 6.0 */
+	glLoadIdentity();
+	glTranslatef( -1.5f, 0.0f, -6.0f );
+
+	glBegin( GL_TRIANGLES );            /* Drawing Using Triangles */
+	glVertex3f(  0.0f,  1.0f, 0.0f ); /* Top */
+	glVertex3f( -1.0f, -1.0f, 0.0f ); /* Bottom Left */
+	glVertex3f(  1.0f, -1.0f, 0.0f ); /* Bottom Right */
+	glEnd( );                           /* Finished Drawing The Triangle */
+
+	/* Move Right 3 Units */
+	glTranslatef( 3.0f, 0.0f, 0.0f );
+
+	glBegin( GL_QUADS );                /* Draw A Quad */
+	glVertex3f( -1.0f,  1.0f, 0.0f ); /* Top Left */
+	glVertex3f(  1.0f,  1.0f, 0.0f ); /* Top Right */
+	glVertex3f(  1.0f, -1.0f, 0.0f ); /* Bottom Right */
+	glVertex3f( -1.0f, -1.0f, 0.0f ); /* Bottom Left */
+	glEnd( );                           /* Done Drawing The Quad */
+
+	SDL_RenderPresent(displayRenderer);
+	SDL_GL_SwapWindow(displayWindow);
+}
+
+
+int	main(int argc, char *argv[])
+{
+	SDL_Init(SDL_INIT_VIDEO);
+
+	SDL_RendererInfo displayRendererInfo;
+	SDL_CreateWindowAndRenderer(800, 600, SDL_WINDOW_OPENGL, &displayWindow, &displayRenderer);
+	SDL_GLContext glContext = SDL_GL_CreateContext(displayWindow);
+	SDL_GetRendererInfo(displayRenderer, &displayRendererInfo);
+	/*TODO: Check that we have OpenGL */
+	if ((displayRendererInfo.flags & SDL_RENDERER_ACCELERATED) == 0 || 
+		(displayRendererInfo.flags & SDL_RENDERER_TARGETTEXTURE) == 0) {
+			/*TODO: Handle this. We have no render surface and not accelerated. */
 	}
 
-	// Create a window
-	SDL_Window *win = SDL_CreateWindow("Hello World!", 100, 100, 640, 480,
-		SDL_WINDOW_SHOWN);
-	if (win == nullptr){
-		logSDLError(std::cout, "SDL_CreateWindow");
-		return 1;
-	}
+	Display_InitGL();
 
-	// Create a renderer
-	SDL_Renderer *ren = SDL_CreateRenderer(win, -1, 
-		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (ren == nullptr){
-		logSDLError(std::cout, "SDL_CreateRenderer");
-		return 1;
-	}
-
-	SDL_Texture * background = loadTexture("resources/background.bmp", ren);
-	SDL_Texture * image = loadTexture("resources/image.png", ren);
-	if (background == nullptr || image == nullptr)
-		return 4;
-
-	//iW and iH are the clip width and height
-	//We'll be drawing only clips so get a center position for the w/h of a clip
-	int iW = 100, iH = 100;
-	int x = SCREEN_WIDTH / 2 - iW / 2;
-	int y = SCREEN_HEIGHT / 2 - iH / 2;
-
-	//Setup the clips for our image
-	SDL_Rect clips[4];
-	for (int i = 0; i < 4; ++i){
-		clips[i].x = i / 2 * iW;
-		clips[i].y = i % 2 * iH;
-		clips[i].w = iW;
-		clips[i].h = iH;
-	}
-	//Specify a default clip to start with
-	int useClip = 0;
+	Display_SetViewport(800, 600);
 
 	//Our event structure
 	SDL_Event e;
 	bool quit = false;
-	while (!quit){
+	while (!quit) {
 		const Uint8 *keys = SDL_GetKeyboardState(NULL);
 		while (SDL_PollEvent(&e)){
 			if (e.type == SDL_QUIT)
 				quit = true;
-			if (keys[SDL_SCANCODE_UP]) { // Pressed up key
-				y -= 5;
-			}
-			if (keys[SDL_SCANCODE_DOWN]) { // Pressed down key
-				y += 5;
-			}
-			if (keys[SDL_SCANCODE_LEFT]) {
-				x -= 5;
-			}
-			if (keys[SDL_SCANCODE_RIGHT]) {
-				x += 5;
-			}
-			if (e.type == SDL_MOUSEBUTTONDOWN) {
-				useClip++;
-				useClip %= 4;
-			}
 			if (keys[SDL_SCANCODE_ESCAPE]) {
 				quit = true;
 			}
 		}
-
-		//Render the scene
-		SDL_RenderClear(ren);
-		renderTexture(image, ren, x, y, &clips[useClip]);
-		SDL_RenderPresent(ren);
+		Display_Render();
 	}
-
-	// Clean up
-	SDL_DestroyTexture(background);
-	SDL_DestroyTexture(image);
-	SDL_DestroyRenderer(ren);
-	SDL_DestroyWindow(win);
 
 	SDL_Quit();
 
