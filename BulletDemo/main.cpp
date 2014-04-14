@@ -11,6 +11,8 @@ SDL_Window* displayWindow;
 SDL_Renderer* displayRenderer;
 GLUquadricObj* quad;
 
+float angle = 0, xCam = 0, yCam = 0, zCam = 5, lx = sin(angle), lz = -cos(angle), mov_speed = 0.005, rot_velocity = 0.006;
+													   
 void Display_InitGL()
 {
 	/* Enable smooth shading */
@@ -65,10 +67,10 @@ int Display_SetViewport( int width, int height )
 	return 1;
 }
 
-void renderSphere() {
-	glLoadIdentity();
-	gluLookAt(1,2,5,0,0,0,0,1,0);
-	glScalef(0.5,0.5,0.5);
+void renderCube(float x = 0, float y = 0, float z = 0) {
+
+	glPushMatrix();
+	glTranslatef(x, y, z);
 
 	glBegin(GL_QUADS);
 
@@ -118,6 +120,21 @@ void renderSphere() {
 
 	glEnd();
 
+	glPopMatrix();
+}
+
+void renderScene() {
+	glLoadIdentity();
+	gluLookAt(xCam, yCam, zCam,
+			xCam+lx, yCam,  zCam+lz,
+			0.0f, 1.0f,  0.0f);
+	glScalef(0.5,0.5,0.5);
+
+	renderCube(-3,0,0);
+	renderCube(0,0,0);
+	renderCube(0,3,0);
+	renderCube(3,0,0);
+
 	glFlush();
 }
 
@@ -128,7 +145,7 @@ void Display_Render()
 	/* Clear The Screen And The Depth Buffer */
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-	renderSphere();
+	renderScene();
 
 	SDL_RenderPresent(displayRenderer);
 	SDL_GL_SwapWindow(displayWindow);
@@ -161,10 +178,44 @@ int	main(int argc, char *argv[])
 		while (SDL_PollEvent(&e)){
 			if (e.type == SDL_QUIT)
 				quit = true;
-			if (keys[SDL_SCANCODE_ESCAPE]) {
-				quit = true;
-			}
 		}
+		if (keys[SDL_SCANCODE_W]) {
+			xCam += lx * mov_speed;
+			zCam += lz * mov_speed;
+		}
+		if (keys[SDL_SCANCODE_A]) {
+			angle -= rot_velocity;
+			lx = sin(angle);
+			lz = -cos(angle);
+		}
+		if (keys[SDL_SCANCODE_S]) {
+			xCam -= lx * mov_speed;
+			zCam -= lz * mov_speed;
+		}
+		if (keys[SDL_SCANCODE_D]) {
+			angle += rot_velocity;
+			lx = sin(angle);
+			lz = -cos(angle);
+		}
+		if (keys[SDL_SCANCODE_Q]) {
+			float dx = cos(angle) * mov_speed;
+			float dz = -sin(angle) * mov_speed;
+			xCam -= dx;
+			zCam += dz;
+		}
+		if (keys[SDL_SCANCODE_E]) {
+			float dx = cos(angle) * mov_speed;
+			float dz = -sin(angle) * mov_speed;
+			xCam += dx;
+			zCam -= dz;
+		}
+		if (keys[SDL_SCANCODE_SPACE]) {
+			yCam = 1.5;
+		}
+		if (keys[SDL_SCANCODE_ESCAPE]) {
+			quit = true;
+		}
+		yCam = yCam > 0 ? yCam - 0.005 : 0;
 		Display_Render();
 	}
 
