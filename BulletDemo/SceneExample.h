@@ -18,10 +18,10 @@ public:
 private:
 	void renderCube(float x = 0, float y = 0, float z = 0);
 
-	float angle;
+	float angleH, angleV;
 	float xCam, yCam, zCam;
-	float lx, lz;
-	float mov_speed, rot_velocity;
+	float lx, ly, lz;
+	float mov_speed, rot_speed, mouse_sensitivity;
 	bool quit;
 };
 

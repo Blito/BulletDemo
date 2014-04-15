@@ -1,8 +1,12 @@
 #include "SceneExample.h"
 
-SceneExample::SceneExample() : angle(0), xCam(0), yCam(0), zCam(5), quit(false), mov_speed(0.005f), rot_velocity(0.006f) {
-	lx = sin(angle);
-	lz = -cos(angle);
+SceneExample::SceneExample() : angleH(0), angleV(0),
+							   xCam(0), yCam(0), zCam(5), 
+							   quit(false), 
+							   mov_speed(0.005f), rot_speed(0.006f), mouse_sensitivity(2.0f) {
+	lx = sin(angleH);
+	ly = sin(angleV);
+	lz = -cos(angleH);
 }
 
 void SceneExample::update() {
@@ -12,36 +16,66 @@ void SceneExample::update() {
 	while (SDL_PollEvent(&e)){
 		if (e.type == SDL_QUIT)
 			quit = true;
+		if (e.type == SDL_MOUSEMOTION)
+		{
+			/* If the mouse is moving to the left */
+			if (e.motion.xrel < 0) {
+				angleH -= rot_speed * mouse_sensitivity;
+			}
+			/* If the mouse is moving to the right */
+			else if (e.motion.xrel > 0) {
+				angleH += rot_speed * mouse_sensitivity;
+			}
+			/* If the mouse is moving up */
+			else if (e.motion.yrel < 0) {
+				angleV += rot_speed * mouse_sensitivity;
+			}
+			/* If the mouse is moving down */
+			else if (e.motion.yrel > 0) {
+				angleV -= rot_speed * mouse_sensitivity;
+			}
+			lx = sin(angleH);
+			ly = sin(angleV);
+			lz = -cos(angleH);
+		}
 	}
 	if (keys[SDL_SCANCODE_W]) {
 		xCam += lx * mov_speed;
 		zCam += lz * mov_speed;
 	}
 	if (keys[SDL_SCANCODE_A]) {
-		angle -= rot_velocity;
-		lx = sin(angle);
-		lz = -cos(angle);
+		angleH -= rot_speed;
+		lx = sin(angleH);
+		lz = -cos(angleH);
 	}
 	if (keys[SDL_SCANCODE_S]) {
 		xCam -= lx * mov_speed;
 		zCam -= lz * mov_speed;
 	}
 	if (keys[SDL_SCANCODE_D]) {
-		angle += rot_velocity;
-		lx = sin(angle);
-		lz = -cos(angle);
+		angleH += rot_speed;
+		lx = sin(angleH);
+		lz = -cos(angleH);
 	}
 	if (keys[SDL_SCANCODE_Q]) {
-		float dx = cos(angle) * mov_speed;
-		float dz = -sin(angle) * mov_speed;
+		float dx = cos(angleH) * mov_speed;
+		float dz = -sin(angleH) * mov_speed;
 		xCam -= dx;
 		zCam += dz;
 	}
 	if (keys[SDL_SCANCODE_E]) {
-		float dx = cos(angle) * mov_speed;
-		float dz = -sin(angle) * mov_speed;
+		float dx = cos(angleH) * mov_speed;
+		float dz = -sin(angleH) * mov_speed;
 		xCam += dx;
 		zCam -= dz;
+	}
+	if (keys[SDL_SCANCODE_UP]) {
+		angleV += rot_speed;
+		ly = sin(angleV);
+	}
+	if (keys[SDL_SCANCODE_DOWN]) {
+		angleV -= rot_speed;
+		ly = sin(angleV);
 	}
 	if (keys[SDL_SCANCODE_SPACE]) {
 		yCam = 1.5;
@@ -56,7 +90,7 @@ void SceneExample::update() {
 void SceneExample::render() {
 	glLoadIdentity();
 	gluLookAt(xCam, yCam, zCam,
-			xCam+lx, yCam,  zCam+lz,
+			xCam+lx, yCam+ly,  zCam+lz,
 			0.0f, 1.0f,  0.0f);
 	glScalef(0.5,0.5,0.5);
 
