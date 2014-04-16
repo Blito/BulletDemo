@@ -28,13 +28,21 @@ void OpenGLWindow::setScene(Scene * scene) {
 	activeScene = scene;
 }
 
-void OpenGLWindow::renderFrame() {
+void OpenGLWindow::run() {
+	Uint32 elapsedTime = SDL_GetTicks();
+	while (!activeScene->isQuit()) {
+		elapsedTime = SDL_GetTicks() - elapsedTime;
+		renderFrame(elapsedTime);
+	}
+}
+
+void OpenGLWindow::renderFrame(Uint32 elapsedTime) {
 	/* Set the background black */
 	glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
 	/* Clear The Screen And The Depth Buffer */
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-	activeScene->update();
+	activeScene->update(elapsedTime);
 	activeScene->render();
 
 	SDL_RenderPresent(displayRenderer);

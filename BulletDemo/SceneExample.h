@@ -11,7 +11,7 @@ class SceneExample :
 public:
 	SceneExample(void);
 	~SceneExample(void) {}
-	void update();
+	void update(Uint32 elapsedTimeInMillis);
 	void render();
 	bool isQuit() { return quit; }
 

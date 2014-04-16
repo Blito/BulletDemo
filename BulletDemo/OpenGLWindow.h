@@ -10,9 +10,10 @@ public:
 	OpenGLWindow(void);
 	~OpenGLWindow(void);
 	void setScene(Scene * scene);
-	void renderFrame();
+	void run();
 
 private:
+	void renderFrame(Uint32 elapsedTime);
 	void Display_InitGL();
 	int Display_SetViewport(int width, int height);
 

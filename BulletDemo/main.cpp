@@ -14,9 +14,7 @@ int	main(int argc, char *argv[])
 	window.setScene(&scene);
 
 	//Our event structure
-	while (!scene.isQuit()) {
-		window.renderFrame();
-	}
+	window.run();
 
 	return 0;
 }

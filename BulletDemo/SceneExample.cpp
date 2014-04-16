@@ -1,15 +1,24 @@
 #include "SceneExample.h"
 
-SceneExample::SceneExample() : angleH(0), angleV(0),
-							   xCam(0), yCam(0), zCam(5), 
+#define ANGLEH 0
+#define ANGLEV 0
+#define XCAM 0
+#define YCAM 0
+#define ZCAM 5
+#define MOV_SPEED 0.00005f
+#define ROT_SPEED 0.00002f
+#define MOUSE_SENSITIVITY 0.5f
+
+SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
+							   xCam(XCAM), yCam(YCAM), zCam(ZCAM), 
 							   quit(false), 
-							   mov_speed(0.005f), rot_speed(0.006f), mouse_sensitivity(2.0f) {
+							   mov_speed(MOV_SPEED), rot_speed(ROT_SPEED), mouse_sensitivity(MOUSE_SENSITIVITY) {
 	lx = sin(angleH);
 	ly = sin(angleV);
 	lz = -cos(angleH);
 }
 
-void SceneExample::update() {
+void SceneExample::update(Uint32 elapsedTimeInMillis) {
 	SDL_Event e;
 
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
@@ -20,19 +29,19 @@ void SceneExample::update() {
 		{
 			/* If the mouse is moving to the left */
 			if (e.motion.xrel < 0) {
-				angleH -= rot_speed * mouse_sensitivity;
+				angleH -= rot_speed * mouse_sensitivity * elapsedTimeInMillis;
 			}
 			/* If the mouse is moving to the right */
 			else if (e.motion.xrel > 0) {
-				angleH += rot_speed * mouse_sensitivity;
+				angleH += rot_speed * mouse_sensitivity * elapsedTimeInMillis;
 			}
 			/* If the mouse is moving up */
-			else if (e.motion.yrel < 0) {
-				angleV += rot_speed * mouse_sensitivity;
+			if (e.motion.yrel < 0) {
+				angleV += rot_speed * mouse_sensitivity * elapsedTimeInMillis;
 			}
 			/* If the mouse is moving down */
 			else if (e.motion.yrel > 0) {
-				angleV -= rot_speed * mouse_sensitivity;
+				angleV -= rot_speed * mouse_sensitivity * elapsedTimeInMillis;
 			}
 			lx = sin(angleH);
 			ly = sin(angleV);
@@ -40,41 +49,37 @@ void SceneExample::update() {
 		}
 	}
 	if (keys[SDL_SCANCODE_W]) {
-		xCam += lx * mov_speed;
-		zCam += lz * mov_speed;
+		xCam += lx * mov_speed * elapsedTimeInMillis;
+		zCam += lz * mov_speed * elapsedTimeInMillis;
 	}
 	if (keys[SDL_SCANCODE_A]) {
-		angleH -= rot_speed;
+		angleH -= rot_speed * elapsedTimeInMillis;
 		lx = sin(angleH);
 		lz = -cos(angleH);
 	}
 	if (keys[SDL_SCANCODE_S]) {
-		xCam -= lx * mov_speed;
-		zCam -= lz * mov_speed;
+		xCam -= lx * mov_speed * elapsedTimeInMillis;
+		zCam -= lz * mov_speed * elapsedTimeInMillis;
 	}
 	if (keys[SDL_SCANCODE_D]) {
-		angleH += rot_speed;
+		angleH += rot_speed * elapsedTimeInMillis;
 		lx = sin(angleH);
 		lz = -cos(angleH);
 	}
 	if (keys[SDL_SCANCODE_Q]) {
-		float dx = cos(angleH) * mov_speed;
-		float dz = -sin(angleH) * mov_speed;
-		xCam -= dx;
-		zCam += dz;
+		xCam -= cos(angleH) * mov_speed * elapsedTimeInMillis;
+		zCam += -sin(angleH) * mov_speed * elapsedTimeInMillis;
 	}
 	if (keys[SDL_SCANCODE_E]) {
-		float dx = cos(angleH) * mov_speed;
-		float dz = -sin(angleH) * mov_speed;
-		xCam += dx;
-		zCam -= dz;
+		xCam += cos(angleH) * mov_speed * elapsedTimeInMillis;
+		zCam -= -sin(angleH) * mov_speed * elapsedTimeInMillis;
 	}
 	if (keys[SDL_SCANCODE_UP]) {
-		angleV += rot_speed;
+		angleV += rot_speed * elapsedTimeInMillis;
 		ly = sin(angleV);
 	}
 	if (keys[SDL_SCANCODE_DOWN]) {
-		angleV -= rot_speed;
+		angleV -= rot_speed * elapsedTimeInMillis;
 		ly = sin(angleV);
 	}
 	if (keys[SDL_SCANCODE_SPACE]) {
