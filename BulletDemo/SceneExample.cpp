@@ -5,9 +5,9 @@
 #define XCAM 0
 #define YCAM 0
 #define ZCAM 5
-#define MOV_SPEED 0.00005f
-#define ROT_SPEED 0.00002f
-#define MOUSE_SENSITIVITY 0.5f
+#define MOV_SPEED 0.0045f
+#define ROT_SPEED 0.004f
+#define MOUSE_SENSITIVITY 0.8f
 
 SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 							   xCam(XCAM), yCam(YCAM), zCam(ZCAM), 
@@ -29,19 +29,25 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
 		{
 			/* If the mouse is moving to the left */
 			if (e.motion.xrel < 0) {
-				angleH -= rot_speed * mouse_sensitivity * elapsedTimeInMillis;
+				angleH -= rot_speed * -e.motion.xrel * mouse_sensitivity * elapsedTimeInMillis;
 			}
 			/* If the mouse is moving to the right */
 			else if (e.motion.xrel > 0) {
-				angleH += rot_speed * mouse_sensitivity * elapsedTimeInMillis;
+				angleH += rot_speed * e.motion.xrel * mouse_sensitivity * elapsedTimeInMillis;
 			}
 			/* If the mouse is moving up */
 			if (e.motion.yrel < 0) {
-				angleV += rot_speed * mouse_sensitivity * elapsedTimeInMillis;
+				if (angleV < 0.5)
+					angleV += rot_speed * -e.motion.yrel * mouse_sensitivity * elapsedTimeInMillis;
+				else
+					angleV = 0.5f;
 			}
 			/* If the mouse is moving down */
 			else if (e.motion.yrel > 0) {
-				angleV -= rot_speed * mouse_sensitivity * elapsedTimeInMillis;
+				if (angleV > -0.5)
+					angleV -= rot_speed * e.motion.yrel * mouse_sensitivity * elapsedTimeInMillis;
+				else
+					angleV = -0.5f;
 			}
 			lx = sin(angleH);
 			ly = sin(angleV);
@@ -103,6 +109,7 @@ void SceneExample::render() {
 	renderCube(0,0,0);
 	renderCube(0,3,0);
 	renderCube(3,0,0);
+	renderPlane(-2);
 
 	glFlush();
 }
@@ -157,6 +164,25 @@ void SceneExample::renderCube(float x, float y, float z) {
 	glVertex3f(1.0f, -1.0f, 1.0f);
 	glVertex3f(1.0f, -1.0f, -1.0f);
 
+
+	glEnd();
+
+	glPopMatrix();
+}
+
+void SceneExample::renderPlane(float y) {
+	glPushMatrix();
+
+	glTranslatef(0,y,0);
+	glScalef(100, 0, 100);
+
+	glBegin(GL_QUADS);
+
+	glColor3f(0.7, 0.7, 0.7);
+	glVertex3f(-1.0f, y, 1.0f);
+	glVertex3f(-1.0f, y, -1.0f);
+	glVertex3f(1.0f, y, -1.0f);
+	glVertex3f(1.0f, y, 1.0f);
 
 	glEnd();
 

@@ -17,6 +17,7 @@ OpenGLWindow::OpenGLWindow(void)
 	Display_InitGL();
 
 	Display_SetViewport(800, 600);
+
 }
 
 OpenGLWindow::~OpenGLWindow(void)
@@ -29,20 +30,20 @@ void OpenGLWindow::setScene(Scene * scene) {
 }
 
 void OpenGLWindow::run() {
-	Uint32 elapsedTime = SDL_GetTicks();
+	elapsedTime = SDL_GetTicks();
 	while (!activeScene->isQuit()) {
-		elapsedTime = SDL_GetTicks() - elapsedTime;
-		renderFrame(elapsedTime);
+		renderFrame();
 	}
 }
 
-void OpenGLWindow::renderFrame(Uint32 elapsedTime) {
+void OpenGLWindow::renderFrame() {
 	/* Set the background black */
 	glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
 	/* Clear The Screen And The Depth Buffer */
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-	activeScene->update(elapsedTime);
+	activeScene->update(SDL_GetTicks() - elapsedTime);
+	elapsedTime = SDL_GetTicks();
 	activeScene->render();
 
 	SDL_RenderPresent(displayRenderer);

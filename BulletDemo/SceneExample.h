@@ -17,6 +17,7 @@ public:
 
 private:
 	void renderCube(float x = 0, float y = 0, float z = 0);
+	void renderPlane(float y = 0);
 
 	float angleH, angleV;
 	float xCam, yCam, zCam;

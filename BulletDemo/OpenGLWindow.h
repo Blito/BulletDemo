@@ -13,12 +13,13 @@ public:
 	void run();
 
 private:
-	void renderFrame(Uint32 elapsedTime);
+	void renderFrame();
 	void Display_InitGL();
 	int Display_SetViewport(int width, int height);
 
 	SDL_Window* displayWindow;
 	SDL_Renderer* displayRenderer;
 	Scene * activeScene;
+	Uint32 elapsedTime;
 };
 
