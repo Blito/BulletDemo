@@ -27,6 +27,7 @@ OpenGLWindow::~OpenGLWindow(void)
 
 void OpenGLWindow::setScene(Scene * scene) {
 	activeScene = scene;
+	activeScene->setRenderer(displayRenderer);
 }
 
 void OpenGLWindow::run() {

@@ -8,6 +8,7 @@
 #define MOV_SPEED 0.0045f
 #define ROT_SPEED 0.004f
 #define MOUSE_SENSITIVITY 0.8f
+#define FONT_FILE "resources/consola.ttf"
 
 SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 							   xCam(XCAM), yCam(YCAM), zCam(ZCAM), 
@@ -16,6 +17,26 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	lx = sin(angleH);
 	ly = sin(angleV);
 	lz = -cos(angleH);
+
+
+	// Init fonts
+	if (TTF_Init() != 0){
+		//logSDLError(std::cout, "TTF_Init");
+		return;
+	}
+
+	//Open the font
+	font = TTF_OpenFont(FONT_FILE, 12);
+	if (font == nullptr){
+		//logSDLError(std::cout, "TTF_OpenFont");
+		return;
+	}	
+}
+
+SceneExample::~SceneExample() {
+	//Clean up the surface and font
+	//SDL_FreeSurface(surf);
+	TTF_CloseFont(font);
 }
 
 void SceneExample::update(Uint32 elapsedTimeInMillis) {
@@ -187,4 +208,26 @@ void SceneExample::renderPlane(float y) {
 	glEnd();
 
 	glPopMatrix();
+}
+
+/**
+* Render the message we want to display to a texture for drawing
+* @param message The message we want to display
+* @param color The color we want the text to be
+* @param renderer The renderer to load the texture in
+* @return An SDL_Texture containing the rendered message, or nullptr if something went wrong
+*/
+void SceneExample::createText(const std::string &message, 
+	SDL_Color color)
+{
+	
+	//We need to first render to a surface as that's what TTF_RenderText
+	//returns, then load that surface into a texture
+	SDL_Surface *surf = TTF_RenderText_Blended(font, message.c_str(), color);
+	if (surf == nullptr){
+		TTF_CloseFont(font);
+		//logSDLError(std::cout, "TTF_RenderText");
+	}
+	text = SDL_CreateTextureFromSurface(renderer, surf);
+
 }
