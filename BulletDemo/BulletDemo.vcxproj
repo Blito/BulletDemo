@@ -47,7 +47,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(FrameworkSdkDir)lib;$(SolutionDir)dependencies\lib\bullet;$(SolutionDir)dependencies\lib\SDL2\x86</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glu32.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;BulletDynamics_vs2010_debug.lib;BulletCollision_vs2010_debug.lib;LinearMath_vs2010_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
       <Command>xcopy $(SolutionDir)dependencies\dlls\*.dll $(TargetDir) /Y</Command>
