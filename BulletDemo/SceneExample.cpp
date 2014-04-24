@@ -1,4 +1,6 @@
 #include "SceneExample.h"
+#include <bullet\LinearMath\btTransform.h>
+#include <bullet\BulletCollision\CollisionShapes\btBoxShape.h>
 
 #define ANGLEH 0
 #define ANGLEV 0
@@ -30,13 +32,40 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	if (font == nullptr){
 		//logSDLError(std::cout, "TTF_OpenFont");
 		return;
-	}	
+	}
+
+	// Physics init
+	collisionConfig = new btDefaultCollisionConfiguration();
+	dispatcher = new btCollisionDispatcher(collisionConfig);
+	broadphase = new btDbvtBroadphase();
+	solver = new btSequentialImpulseConstraintSolver();
+	world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfig);
+	world->setGravity(new btVector3(0,-9.8f,0));
+
+	// Create floor
+	btTransform t;
+	t.setIdentity();
+	t.setOrigin(0,0,0);
+	btStaticPlaneShape * plane = new btStaticPlaneShape(new btVector(0,1,0), -2);
+	btMotionState * motion = new btDefaultMotionShape(t);
+	btRigidBody::btRigidBodyConstructionInfo info(0, motion, plane);
+	btRigitBody * body = new btRigidBody(info);
+	world->addRigidBody(body);
+	bodies.push_back(body);
 }
 
 SceneExample::~SceneExample() {
 	//Clean up the surface and font
 	//SDL_FreeSurface(surf);
 	TTF_CloseFont(font);
+
+	// Physics
+	delete plane;
+	delete dispatcher;
+	delete collisionConfig;
+	delete solver;
+	delete world;
+	delete broadphase;
 }
 
 void SceneExample::update(Uint32 elapsedTimeInMillis) {
@@ -116,7 +145,7 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
 		quit = true;
 	}
 	yCam = yCam > 0 ? yCam - 0.005f : 0;
-	
+	world->stepSimulation(elapsedTimeInMillis*1000);
 }
 
 void SceneExample::render() {
@@ -126,16 +155,29 @@ void SceneExample::render() {
 			0.0f, 1.0f,  0.0f);
 	glScalef(0.5,0.5,0.5);
 
-	renderCube(-3,0,0);
-	renderCube(0,0,0);
-	renderCube(0,3,0);
-	renderCube(3,0,0);
+	renderCube(1,-3,0,0);
+	renderCube(1,0,0,0);
+	renderCube(1,0,3,0);
+	renderCube(1,3,0,0);
 	renderPlane(-2);
 
 	glFlush();
 }
 
-void SceneExample::renderCube(float x, float y, float z) {
+void SceneExample::createCube(float size, float x = 0, float y = 0, float z = 0, float mass = 0) {
+	btTransform t;
+	t.setIdentity();
+	t.setOrigin(x,y,z);
+	btBoxShape * box = new btBoxShape(btVector(size/2, size/2, size/2));
+	btStaticPlaneShape * plane = new btStaticPlaneShape(new btVector(0,1,0), -2);
+	btMotionState * motion = new btDefaultMotionShape(t);
+	btRigidBody::btRigidBodyConstructionInfo info(0, motion, plane);
+	btRigitBody * body = new btRigidBody(info);
+	world->addRigidBody(body);
+	bodies.push_back(body);
+}
+
+void SceneExample::renderCube(float size, float x, float y, float z) {
 
 	glPushMatrix();
 	glTranslatef(x, y, z);
@@ -144,46 +186,46 @@ void SceneExample::renderCube(float x, float y, float z) {
 
 	/* Cube Top */
 	glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(-size, size, size);
+	glVertex3f(-size, size, -size);
+	glVertex3f(size, size, -size);
+	glVertex3f(size, size, size);
 
 
 	/* Cube Bottom */
 	glColor4f(1.0f, 0.5f, 0.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
+	glVertex3f(-size, -size, size);
+	glVertex3f(-size, -size, -size);
+	glVertex3f(size, -size, -size);
+	glVertex3f(size, -size, size);
 
 	/* Cube Front */
 	glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
+	glVertex3f(-size, size, size);
+	glVertex3f(size, size, size);
+	glVertex3f(size, -size, size);
+	glVertex3f(-size, -size, size);
 
 	/* Cube Back */
 	glColor4f(0.0f, 1.0f, 0.5f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
+	glVertex3f(-size, size, -size);
+	glVertex3f(size, size, -size);
+	glVertex3f(size, -size, -size);
+	glVertex3f(-size, -size, -size);
 
 	/* Cube Left Side */
 	glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
+	glVertex3f(-size, size, -size);
+	glVertex3f(-size, size, size);
+	glVertex3f(-size, -size, size);
+	glVertex3f(-size, -size, -size);
 
 	/* Cube Right Side */
 	glColor4f(0.15f, 0.25f, 0.75f, 1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
+	glVertex3f(size, size, -size);
+	glVertex3f(size, size, size);
+	glVertex3f(size, -size, size);
+	glVertex3f(size, -size, -size);
 
 
 	glEnd();
