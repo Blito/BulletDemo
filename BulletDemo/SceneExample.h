@@ -27,6 +27,7 @@ public:
 	SDL_Texture * getText() const { return text; }
 
 private:
+	void renderCube(btRigidBody * cube);
 	void createCube(float size, float x = 0, float y = 0, float z = 0, float mass = 0);
 	void renderCube(float size, float x = 0, float y = 0, float z = 0);
 	void renderPlane(float y = 0);
@@ -37,14 +38,14 @@ private:
 	float xCam, yCam, zCam;
 	float lx, ly, lz;
 
-	// Movemnet
+	// Movement
 	float mov_speed, rot_speed, mouse_sensitivity;
 
 	// Physics
 	btDynamicsWorld * world;
 	btDispatcher * dispatcher;
 	btCollisionConfiguration * collisionConfig;
-	btBroadPhaseInterface * broadphase;
+	btBroadphaseInterface * broadphase;
 	btConstraintSolver * solver;
 	std::vector<btRigidBody*> bodies;
 

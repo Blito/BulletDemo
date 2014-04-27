@@ -1,6 +1,9 @@
 #include "SceneExample.h"
 #include <bullet\LinearMath\btTransform.h>
+#include <bullet\BulletCollision\CollisionDispatch\btDefaultCollisionConfiguration.h>
 #include <bullet\BulletCollision\CollisionShapes\btBoxShape.h>
+#include <bullet\BulletCollision\CollisionShapes\btStaticPlaneShape.h>
+#include <bullet\LinearMath\btDefaultMotionState.h>
 
 #define ANGLEH 0
 #define ANGLEV 0
@@ -40,18 +43,24 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	broadphase = new btDbvtBroadphase();
 	solver = new btSequentialImpulseConstraintSolver();
 	world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfig);
-	world->setGravity(new btVector3(0,-9.8f,0));
+	world->setGravity(btVector3(0,-9.8f,0));
 
 	// Create floor
 	btTransform t;
 	t.setIdentity();
-	t.setOrigin(0,0,0);
-	btStaticPlaneShape * plane = new btStaticPlaneShape(new btVector(0,1,0), -2);
-	btMotionState * motion = new btDefaultMotionShape(t);
+	t.setOrigin(btVector3(0,0,0));
+	btStaticPlaneShape * plane = new btStaticPlaneShape(btVector3(0,1,0), -2);
+	btMotionState * motion = new btDefaultMotionState(t);
 	btRigidBody::btRigidBodyConstructionInfo info(0, motion, plane);
-	btRigitBody * body = new btRigidBody(info);
+	btRigidBody * body = new btRigidBody(info);
 	world->addRigidBody(body);
 	bodies.push_back(body);
+
+	// Create cubes
+	createCube(1,-3,0,0, 2);
+	createCube(1,0,0,0,5);
+	createCube(1,0,3,0,3);
+	createCube(1,3,0,0,7);
 }
 
 SceneExample::~SceneExample() {
@@ -60,12 +69,11 @@ SceneExample::~SceneExample() {
 	TTF_CloseFont(font);
 
 	// Physics
-	delete plane;
+	delete world;
+	delete solver;
+	delete broadphase;
 	delete dispatcher;
 	delete collisionConfig;
-	delete solver;
-	delete world;
-	delete broadphase;
 }
 
 void SceneExample::update(Uint32 elapsedTimeInMillis) {
@@ -75,34 +83,34 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
 	while (SDL_PollEvent(&e)){
 		if (e.type == SDL_QUIT)
 			quit = true;
-		if (e.type == SDL_MOUSEMOTION)
-		{
-			/* If the mouse is moving to the left */
-			if (e.motion.xrel < 0) {
-				angleH -= rot_speed * -e.motion.xrel * mouse_sensitivity * elapsedTimeInMillis;
-			}
-			/* If the mouse is moving to the right */
-			else if (e.motion.xrel > 0) {
-				angleH += rot_speed * e.motion.xrel * mouse_sensitivity * elapsedTimeInMillis;
-			}
-			/* If the mouse is moving up */
-			if (e.motion.yrel < 0) {
-				if (angleV < 0.5)
-					angleV += rot_speed * -e.motion.yrel * mouse_sensitivity * elapsedTimeInMillis;
-				else
-					angleV = 0.5f;
-			}
-			/* If the mouse is moving down */
-			else if (e.motion.yrel > 0) {
-				if (angleV > -0.5)
-					angleV -= rot_speed * e.motion.yrel * mouse_sensitivity * elapsedTimeInMillis;
-				else
-					angleV = -0.5f;
-			}
-			lx = sin(angleH);
-			ly = sin(angleV);
-			lz = -cos(angleH);
-		}
+		//if (e.type == SDL_MOUSEMOTION)
+		//{
+		//	/* If the mouse is moving to the left */
+		//	if (e.motion.xrel < 0) {
+		//		angleH -= rot_speed * -e.motion.xrel * mouse_sensitivity * elapsedTimeInMillis;
+		//	}
+		//	/* If the mouse is moving to the right */
+		//	else if (e.motion.xrel > 0) {
+		//		angleH += rot_speed * e.motion.xrel * mouse_sensitivity * elapsedTimeInMillis;
+		//	}
+		//	/* If the mouse is moving up */
+		//	if (e.motion.yrel < 0) {
+		//		if (angleV < 0.5)
+		//			angleV += rot_speed * -e.motion.yrel * mouse_sensitivity * elapsedTimeInMillis;
+		//		else
+		//			angleV = 0.5f;
+		//	}
+		//	/* If the mouse is moving down */
+		//	else if (e.motion.yrel > 0) {
+		//		if (angleV > -0.5)
+		//			angleV -= rot_speed * e.motion.yrel * mouse_sensitivity * elapsedTimeInMillis;
+		//		else
+		//			angleV = -0.5f;
+		//	}
+		//	lx = sin(angleH);
+		//	ly = sin(angleV);
+		//	lz = -cos(angleH);
+		//}
 	}
 	if (keys[SDL_SCANCODE_W]) {
 		xCam += lx * mov_speed * elapsedTimeInMillis;
@@ -155,32 +163,49 @@ void SceneExample::render() {
 			0.0f, 1.0f,  0.0f);
 	glScalef(0.5,0.5,0.5);
 
-	renderCube(1,-3,0,0);
-	renderCube(1,0,0,0);
-	renderCube(1,0,3,0);
-	renderCube(1,3,0,0);
+	for (int i = 0; i < bodies.size(); i++) {
+		if (bodies[i]->getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE) {
+			renderCube(bodies[i]);
+		}
+	}
 	renderPlane(-2);
 
 	glFlush();
 }
 
-void SceneExample::createCube(float size, float x = 0, float y = 0, float z = 0, float mass = 0) {
+void SceneExample::renderCube(btRigidBody * cube) {
+	btVector3 extent = ((btBoxShape*)cube->getCollisionShape())->getHalfExtentsWithoutMargin();
+	btTransform t;
+	cube->getMotionState()->getWorldTransform(t);
+	float mat[16];
+	t.getOpenGLMatrix(mat);
+	glPushMatrix();
+		glMultMatrixf(mat); // translation, rotation
+		renderCube(extent.x());
+	glPopMatrix();
+}
+
+void SceneExample::createCube(float size, float x, float y, float z, float mass) {
 	btTransform t;
 	t.setIdentity();
-	t.setOrigin(x,y,z);
-	btBoxShape * box = new btBoxShape(btVector(size/2, size/2, size/2));
-	btStaticPlaneShape * plane = new btStaticPlaneShape(new btVector(0,1,0), -2);
-	btMotionState * motion = new btDefaultMotionShape(t);
-	btRigidBody::btRigidBodyConstructionInfo info(0, motion, plane);
-	btRigitBody * body = new btRigidBody(info);
+	t.setOrigin(btVector3(x,y,z));
+	btBoxShape * cube = new btBoxShape(btVector3(size/2, size/2, size/2));
+	btVector3 inertia(0,0,0);
+	if (mass != 0.0) {
+		cube->calculateLocalInertia(mass, inertia);
+	}
+
+	btMotionState * motion = new btDefaultMotionState(t);
+	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, cube, inertia);
+	btRigidBody * body = new btRigidBody(info);
 	world->addRigidBody(body);
 	bodies.push_back(body);
 }
 
 void SceneExample::renderCube(float size, float x, float y, float z) {
 
-	glPushMatrix();
-	glTranslatef(x, y, z);
+	//glPushMatrix();
+	//glTranslatef(x, y, z);
 
 	glBegin(GL_QUADS);
 
@@ -230,7 +255,7 @@ void SceneExample::renderCube(float size, float x, float y, float z) {
 
 	glEnd();
 
-	glPopMatrix();
+	//glPopMatrix();
 }
 
 void SceneExample::renderPlane(float y) {
