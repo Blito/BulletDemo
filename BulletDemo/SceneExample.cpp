@@ -2,8 +2,8 @@
 #include <bullet\LinearMath\btTransform.h>
 #include <bullet\BulletCollision\CollisionDispatch\btDefaultCollisionConfiguration.h>
 #include <bullet\BulletCollision\CollisionShapes\btBoxShape.h>
-#include <bullet\BulletCollision\CollisionShapes\btStaticPlaneShape.h>
-#include <bullet\LinearMath\btDefaultMotionState.h>
+#include "Box.h"
+#include "Plane.h"
 
 #define ANGLEH 0
 #define ANGLEV 0
@@ -43,24 +43,18 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	broadphase = new btDbvtBroadphase();
 	solver = new btSequentialImpulseConstraintSolver();
 	world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfig);
-	world->setGravity(btVector3(0,-9.8f,0));
+	world->setGravity(btVector3(0,-10.0f,0));
 
 	// Create floor
-	btTransform t;
-	t.setIdentity();
-	t.setOrigin(btVector3(0,0,0));
-	btStaticPlaneShape * plane = new btStaticPlaneShape(btVector3(0,1,0), -2);
-	btMotionState * motion = new btDefaultMotionState(t);
-	btRigidBody::btRigidBodyConstructionInfo info(0, motion, plane);
-	btRigidBody * body = new btRigidBody(info);
-	world->addRigidBody(body);
-	bodies.push_back(body);
+	RenderedObject * plane = new Plane(-2);
+	world->addRigidBody(plane->getRigidBody());
+	toRender.push_back(plane);
 
 	// Create cubes
-	createCube(1,-3,0,0, 2);
-	createCube(1,0,0,0,5);
-	createCube(1,0,3,0,3);
-	createCube(1,3,0,0,7);
+	createBox(1, 2, 1,-3,0,0, 2);
+	createBox(2, 1, 1,0,0,0,5);
+	createBox(1, 1, 3,0,3,0.7,3);
+	createBox(1, 1, 1,3,0,0,7);
 }
 
 SceneExample::~SceneExample() {
@@ -162,100 +156,21 @@ void SceneExample::render() {
 			xCam+lx, yCam+ly,  zCam+lz,
 			0.0f, 1.0f,  0.0f);
 	glScalef(0.5,0.5,0.5);
-
-	for (int i = 0; i < bodies.size(); i++) {
-		if (bodies[i]->getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE) {
-			renderCube(bodies[i]);
-		}
+	
+	for (int i = 0; i < toRender.size(); i++) {
+		toRender[i]->render();
 	}
-	renderPlane(-2);
+
+	//renderPlane(-2);
+	
 
 	glFlush();
 }
 
-void SceneExample::renderCube(btRigidBody * cube) {
-	btVector3 extent = ((btBoxShape*)cube->getCollisionShape())->getHalfExtentsWithoutMargin();
-	btTransform t;
-	cube->getMotionState()->getWorldTransform(t);
-	float mat[16];
-	t.getOpenGLMatrix(mat);
-	glPushMatrix();
-		glMultMatrixf(mat); // translation, rotation
-		renderCube(extent.x());
-	glPopMatrix();
-}
-
-void SceneExample::createCube(float size, float x, float y, float z, float mass) {
-	btTransform t;
-	t.setIdentity();
-	t.setOrigin(btVector3(x,y,z));
-	btBoxShape * cube = new btBoxShape(btVector3(size/2, size/2, size/2));
-	btVector3 inertia(0,0,0);
-	if (mass != 0.0) {
-		cube->calculateLocalInertia(mass, inertia);
-	}
-
-	btMotionState * motion = new btDefaultMotionState(t);
-	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, cube, inertia);
-	btRigidBody * body = new btRigidBody(info);
-	world->addRigidBody(body);
-	bodies.push_back(body);
-}
-
-void SceneExample::renderCube(float size, float x, float y, float z) {
-
-	//glPushMatrix();
-	//glTranslatef(x, y, z);
-
-	glBegin(GL_QUADS);
-
-	/* Cube Top */
-	glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-	glVertex3f(-size, size, size);
-	glVertex3f(-size, size, -size);
-	glVertex3f(size, size, -size);
-	glVertex3f(size, size, size);
-
-
-	/* Cube Bottom */
-	glColor4f(1.0f, 0.5f, 0.0f, 1.0f);
-	glVertex3f(-size, -size, size);
-	glVertex3f(-size, -size, -size);
-	glVertex3f(size, -size, -size);
-	glVertex3f(size, -size, size);
-
-	/* Cube Front */
-	glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
-	glVertex3f(-size, size, size);
-	glVertex3f(size, size, size);
-	glVertex3f(size, -size, size);
-	glVertex3f(-size, -size, size);
-
-	/* Cube Back */
-	glColor4f(0.0f, 1.0f, 0.5f, 1.0f);
-	glVertex3f(-size, size, -size);
-	glVertex3f(size, size, -size);
-	glVertex3f(size, -size, -size);
-	glVertex3f(-size, -size, -size);
-
-	/* Cube Left Side */
-	glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
-	glVertex3f(-size, size, -size);
-	glVertex3f(-size, size, size);
-	glVertex3f(-size, -size, size);
-	glVertex3f(-size, -size, -size);
-
-	/* Cube Right Side */
-	glColor4f(0.15f, 0.25f, 0.75f, 1.0f);
-	glVertex3f(size, size, -size);
-	glVertex3f(size, size, size);
-	glVertex3f(size, -size, size);
-	glVertex3f(size, -size, -size);
-
-
-	glEnd();
-
-	//glPopMatrix();
+void SceneExample::createBox(float width, float height, float depth, float x, float y, float z, float mass) {
+	RenderedObject * box = new Box(width, height, depth, x, y, z, mass);
+	world->addRigidBody(box->getRigidBody());
+	toRender.push_back(box);
 }
 
 void SceneExample::renderPlane(float y) {

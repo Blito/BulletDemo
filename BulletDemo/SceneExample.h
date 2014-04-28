@@ -14,6 +14,7 @@
 #include <bullet\BulletDynamics\ConstraintSolver\btSequentialImpulseConstraintSolver.h>
 #include <bullet\BulletCollision\CollisionDispatch\btCollisionConfiguration.h>
 #include <bullet\BulletDynamics\Dynamics\btRigidBody.h>
+#include "RenderedObject.h"
 
 class SceneExample :
 	public Scene
@@ -27,9 +28,7 @@ public:
 	SDL_Texture * getText() const { return text; }
 
 private:
-	void renderCube(btRigidBody * cube);
-	void createCube(float size, float x = 0, float y = 0, float z = 0, float mass = 0);
-	void renderCube(float size, float x = 0, float y = 0, float z = 0);
+	void createBox(float width, float height, float depth, float x = 0, float y = 0, float z = 0, float mass = 0);
 	void renderPlane(float y = 0);
 	void createText(const std::string &message, SDL_Color color);
 
@@ -47,7 +46,7 @@ private:
 	btCollisionConfiguration * collisionConfig;
 	btBroadphaseInterface * broadphase;
 	btConstraintSolver * solver;
-	std::vector<btRigidBody*> bodies;
+	std::vector<RenderedObject*> toRender;
 
 	bool quit;
 	TTF_Font *font;

@@ -67,12 +67,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Box.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OpenGLWindow.cpp" />
+    <ClCompile Include="Plane.cpp" />
     <ClCompile Include="SceneExample.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Box.h" />
     <ClInclude Include="OpenGLWindow.h" />
+    <ClInclude Include="Plane.h" />
+    <ClInclude Include="RenderedObject.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneExample.h" />
   </ItemGroup>
