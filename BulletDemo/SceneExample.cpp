@@ -77,6 +77,16 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
 	while (SDL_PollEvent(&e)){
 		if (e.type == SDL_QUIT)
 			quit = true;
+		/* If a button on the mouse is pressed. */
+        if (e.type == SDL_MOUSEBUTTONDOWN)
+        {
+            /* If the left button was pressed. */
+            if (e.button.button == SDL_BUTTON_LEFT) {
+				btRigidBody * bullet = createBox(0.2f, 0.2f, 0.2f, xCam, yCam, zCam, 3)->getRigidBody();
+				btVector3 direction(lx, ly, lz);
+				bullet->setLinearVelocity(direction*-1);
+			}                
+        }
 		//if (e.type == SDL_MOUSEMOTION)
 		//{
 		//	/* If the mouse is moving to the left */
@@ -146,6 +156,7 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
 	if (keys[SDL_SCANCODE_ESCAPE]) {
 		quit = true;
 	}
+	
 	yCam = yCam > 0 ? yCam - 0.005f : 0;
 	world->stepSimulation(elapsedTimeInMillis*1000);
 }
@@ -167,10 +178,11 @@ void SceneExample::render() {
 	glFlush();
 }
 
-void SceneExample::createBox(float width, float height, float depth, float x, float y, float z, float mass) {
+RenderedObject * SceneExample::createBox(float width, float height, float depth, float x, float y, float z, float mass) {
 	RenderedObject * box = new Box(width, height, depth, x, y, z, mass);
 	world->addRigidBody(box->getRigidBody());
 	toRender.push_back(box);
+	return box;
 }
 
 void SceneExample::renderPlane(float y) {

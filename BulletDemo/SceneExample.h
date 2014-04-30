@@ -28,7 +28,7 @@ public:
 	SDL_Texture * getText() const { return text; }
 
 private:
-	void createBox(float width, float height, float depth, float x = 0, float y = 0, float z = 0, float mass = 0);
+	RenderedObject * createBox(float width, float height, float depth, float x = 0, float y = 0, float z = 0, float mass = 0);
 	void renderPlane(float y = 0);
 	void createText(const std::string &message, SDL_Color color);
 
@@ -47,6 +47,7 @@ private:
 	btBroadphaseInterface * broadphase;
 	btConstraintSolver * solver;
 	std::vector<RenderedObject*> toRender;
+	btRigidBody * playerCollider;
 
 	bool quit;
 	TTF_Font *font;
