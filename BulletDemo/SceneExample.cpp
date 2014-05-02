@@ -84,7 +84,8 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
             if (e.button.button == SDL_BUTTON_LEFT) {
 				btRigidBody * bullet = createBox(0.2f, 0.2f, 0.2f, xCam, yCam, zCam, 3)->getRigidBody();
 				btVector3 direction(lx, ly, lz);
-				bullet->setLinearVelocity(direction*-1);
+				bullet->setLinearVelocity(direction*12);
+				//bullet->applyCentralForce(direction*-1);
 			}                
         }
 		//if (e.type == SDL_MOUSEMOTION)
@@ -166,14 +167,11 @@ void SceneExample::render() {
 	gluLookAt(xCam, yCam, zCam,
 			xCam+lx, yCam+ly,  zCam+lz,
 			0.0f, 1.0f,  0.0f);
-	glScalef(0.5,0.5,0.5);
+	//glScalef(0.5,0.5,0.5);
 	
 	for (int i = 0; i < toRender.size(); i++) {
 		toRender[i]->render();
-	}
-
-	//renderPlane(-2);
-	
+	}	
 
 	glFlush();
 }
