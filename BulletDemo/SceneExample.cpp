@@ -1,6 +1,8 @@
 #include "SceneExample.h"
 #include <bullet\LinearMath\btTransform.h>
-#include <bullet\BulletCollision\CollisionDispatch\btDefaultCollisionConfiguration.h>
+#include <bullet\BulletSoftBody\btSoftBodyRigidBodyCollisionConfiguration.h>
+#include <bullet\BulletSoftBody\btDefaultSoftBodySolver.h>
+#include <bullet\BulletSoftBody\btSoftRigidDynamicsWorld.h>
 #include <bullet\BulletCollision\CollisionShapes\btBoxShape.h>
 #include "Box.h"
 #include "Plane.h"
@@ -38,16 +40,17 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	}
 
 	// Physics init
-	collisionConfig = new btDefaultCollisionConfiguration();
+	collisionConfig = new btSoftBodyRigidBodyCollisionConfiguration();
 	dispatcher = new btCollisionDispatcher(collisionConfig);
 	broadphase = new btDbvtBroadphase();
 	solver = new btSequentialImpulseConstraintSolver();
-	world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfig);
+	softbodySolver = new btDefaultSoftBodySolver();
+	world = new btSoftRigidDynamicsWorld(dispatcher, broadphase, solver, collisionConfig, softbodySolver);
 	world->setGravity(btVector3(0,-10.0f,0));
 
 	// Create floor
 	RenderedObject * plane = new Plane(-2);
-	world->addRigidBody(plane->getRigidBody());
+	plane->addToWorld(world);
 	toRender.push_back(plane);
 
 	// Create cubes
@@ -167,7 +170,6 @@ void SceneExample::render() {
 	gluLookAt(xCam, yCam, zCam,
 			xCam+lx, yCam+ly,  zCam+lz,
 			0.0f, 1.0f,  0.0f);
-	//glScalef(0.5,0.5,0.5);
 	
 	for (int i = 0; i < toRender.size(); i++) {
 		toRender[i]->render();
@@ -176,9 +178,9 @@ void SceneExample::render() {
 	glFlush();
 }
 
-RenderedObject * SceneExample::createBox(float width, float height, float depth, float x, float y, float z, float mass) {
-	RenderedObject * box = new Box(width, height, depth, x, y, z, mass);
-	world->addRigidBody(box->getRigidBody());
+Box * SceneExample::createBox(float width, float height, float depth, float x, float y, float z, float mass) {
+	Box * box = new Box(width, height, depth, x, y, z, mass);
+	box->addToWorld(world);
 	toRender.push_back(box);
 	return box;
 }

@@ -76,3 +76,8 @@ void Box::render() {
         glEnd();               
     glPopMatrix();
 }
+
+bool Box::addToWorld(btDynamicsWorld * world) {
+	world->addRigidBody(rigidBody);
+	return true;
+}

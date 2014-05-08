@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderedObject.h"
+#include <bullet\BulletSoftBody\btSoftRigidDynamicsWorld.h>
 
 class Plane : public RenderedObject
 {
@@ -9,7 +10,7 @@ public:
 	~Plane(void);
 
 	void render();
-	btRigidBody * getRigidBody() { return rigidBody; }
+	bool addToWorld(btDynamicsWorld * world);
 
 private:
 	btRigidBody * rigidBody;

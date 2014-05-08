@@ -36,3 +36,8 @@ void Plane::render() {
 
 	glPopMatrix();
 }
+
+bool Plane::addToWorld(btDynamicsWorld * world) {
+	world->addRigidBody(rigidBody);
+	return true;
+}

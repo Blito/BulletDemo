@@ -12,9 +12,10 @@
 #include <bullet\BulletCollision\BroadphaseCollision\btDispatcher.h>
 #include <bullet\BulletCollision\BroadphaseCollision\btDbvtBroadphase.h>
 #include <bullet\BulletDynamics\ConstraintSolver\btSequentialImpulseConstraintSolver.h>
+#include <bullet\BulletSoftBody\btSoftBodySolvers.h>
 #include <bullet\BulletCollision\CollisionDispatch\btCollisionConfiguration.h>
 #include <bullet\BulletDynamics\Dynamics\btRigidBody.h>
-#include "RenderedObject.h"
+#include "Box.h"
 
 class SceneExample :
 	public Scene
@@ -28,7 +29,7 @@ public:
 	SDL_Texture * getText() const { return text; }
 
 private:
-	RenderedObject * createBox(float width, float height, float depth, float x = 0, float y = 0, float z = 0, float mass = 0);
+	Box * createBox(float width, float height, float depth, float x = 0, float y = 0, float z = 0, float mass = 0);
 	void renderPlane(float y = 0);
 	void createText(const std::string &message, SDL_Color color);
 
@@ -46,6 +47,7 @@ private:
 	btCollisionConfiguration * collisionConfig;
 	btBroadphaseInterface * broadphase;
 	btConstraintSolver * solver;
+	btSoftBodySolver * softbodySolver;
 	std::vector<RenderedObject*> toRender;
 	btRigidBody * playerCollider;
 
