@@ -11,6 +11,9 @@ Cloth::Cloth(btSoftBodyWorldInfo& worldInfo,
 		int fixeds)
 {
 	softBody = btSoftBodyHelpers::CreatePatch(worldInfo, corner00, corner10, corner01, corner11, resx, resy, fixeds, true);
+	softBody->setTotalMass(3.0);
+	softBody->m_cfg.viterations = 20;
+	softBody->m_cfg.piterations = 20;
 }
 
 
@@ -32,6 +35,7 @@ void Cloth::render() {
 	}
 	glEnd();
 	glColor3f(0.0, 0.0, 1.0);
+	glBegin(GL_LINES);
 	// For each link in the cloth
 	for (int i = 0; i < softBody->m_links.size(); i++) {
 		// For each vertex in the link

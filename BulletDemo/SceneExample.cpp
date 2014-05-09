@@ -6,6 +6,7 @@
 #include <bullet\BulletCollision\CollisionShapes\btBoxShape.h>
 #include "Box.h"
 #include "Plane.h"
+#include "Cloth.h"
 
 #define ANGLEH 0
 #define ANGLEV 0
@@ -52,6 +53,14 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	RenderedObject * plane = new Plane(-2);
 	plane->addToWorld(world);
 	toRender.push_back(plane);
+
+	// Create cloth
+	float s = 3.0, h = 5.0;
+	RenderedObject * cloth = new Cloth(world->getWorldInfo(), 
+				btVector3(-s, h, -s), btVector3(s, h, -s), btVector3(-s, h, s), btVector3(s, h, s),
+				30, 30, 4+8);
+	cloth->addToWorld(world);
+	toRender.push_back(cloth);
 
 	// Create cubes
 	createBox(1, 2, 1,-3,0,0, 2);

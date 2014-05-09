@@ -42,7 +42,7 @@ private:
 	float mov_speed, rot_speed, mouse_sensitivity;
 
 	// Physics
-	btDynamicsWorld * world;
+	btSoftRigidDynamicsWorld * world;
 	btDispatcher * dispatcher;
 	btCollisionConfiguration * collisionConfig;
 	btBroadphaseInterface * broadphase;
