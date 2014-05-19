@@ -17,15 +17,35 @@
 #include <bullet\BulletDynamics\Dynamics\btRigidBody.h>
 #include "Box.h"
 
+/**
+ * Example scene.
+ * As of now consists of a small number of cubes in a large plane, and a cloth hanging above it.
+ * User can move and shoot things with WASD, up, down, and click.
+ */
 class SceneExample :
 	public Scene
 {
 public:
+	/**
+	 * Constructor.
+	 * Responsible for initializing Physics system (should not be done here), 
+	 * fonts (to be done, should also not be done here), and the scene's objects.
+	 */
 	SceneExample(void);
+
+	/**
+	 * Destructor.
+	 * Responsible for shutting down Physics, and deleting objects in the scene.
+	 */
 	~SceneExample(void);
+
 	void update(Uint32 elapsedTimeInMillis);
 	void render();
 	bool isQuit() { return quit; }
+
+	/**
+	 * To be done.
+	 */
 	SDL_Texture * getText() const { return text; }
 
 private:
@@ -52,6 +72,8 @@ private:
 	btRigidBody * playerCollider;
 
 	bool quit;
+
+	// Fonts
 	TTF_Font *font;
 	SDL_Texture * text;
 };

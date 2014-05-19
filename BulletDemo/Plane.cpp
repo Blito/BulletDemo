@@ -14,10 +14,6 @@ Plane::Plane(int y) : y(y) {
 	rigidBody = new btRigidBody(info);
 }
 
-
-Plane::~Plane(void) {
-}
-
 void Plane::render() {
 	glPushMatrix();
 
