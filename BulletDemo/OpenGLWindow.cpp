@@ -1,11 +1,11 @@
 #include "OpenGLWindow.h"
 
-OpenGLWindow::OpenGLWindow(void)
+OpenGLWindow::OpenGLWindow(int width, int height)
 {
 	SDL_Init(SDL_INIT_VIDEO);
 
 	SDL_RendererInfo displayRendererInfo;
-	SDL_CreateWindowAndRenderer(800, 600, SDL_WINDOW_OPENGL, &displayWindow, &displayRenderer);
+	SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_OPENGL, &displayWindow, &displayRenderer);
 	SDL_GLContext glContext = SDL_GL_CreateContext(displayWindow);
 	SDL_GetRendererInfo(displayRenderer, &displayRendererInfo);
 	/*TODO: Check that we have OpenGL */
@@ -16,7 +16,7 @@ OpenGLWindow::OpenGLWindow(void)
 
 	Display_InitGL();
 
-	Display_SetViewport(800, 600);
+	Display_SetViewport(width, height);
 
 }
 

@@ -4,11 +4,11 @@
 #include <bullet\BulletCollision\CollisionShapes\btStaticPlaneShape.h>
 #include <bullet\LinearMath\btDefaultMotionState.h>
 
-Plane::Plane(int y) : y(y) {
+Plane::Plane(int y, unsigned width, unsigned depth) : y(y), width(width), depth(depth) {
 	btTransform t;
 	t.setIdentity();
 	t.setOrigin(btVector3(0,0,0));
-	btStaticPlaneShape * plane = new btStaticPlaneShape(btVector3(0,1,0), -2);
+	btStaticPlaneShape * plane = new btStaticPlaneShape(btVector3(0,1,0), y);
 	btMotionState * motion = new btDefaultMotionState(t);
 	btRigidBody::btRigidBodyConstructionInfo info(0, motion, plane);
 	rigidBody = new btRigidBody(info);
@@ -18,7 +18,7 @@ void Plane::render() {
 	glPushMatrix();
 
 	glTranslatef(0,y,0);
-	glScalef(100, 0, 100);
+	glScalef(width, 0, depth);
 
 	glBegin(GL_QUADS);
 

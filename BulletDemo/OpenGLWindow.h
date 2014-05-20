@@ -16,7 +16,7 @@ public:
 	 * Constructor.
 	 * Initializes SDL (OpenGL) context.
 	 */
-	OpenGLWindow(void);
+	OpenGLWindow(int width, int height);
 	~OpenGLWindow(void);
 
 	/**

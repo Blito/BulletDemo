@@ -194,25 +194,6 @@ Box * SceneExample::createBox(float width, float height, float depth, float x, f
 	return box;
 }
 
-void SceneExample::renderPlane(float y) {
-	glPushMatrix();
-
-	glTranslatef(0,y,0);
-	glScalef(100, 0, 100);
-
-	glBegin(GL_QUADS);
-
-	glColor3f(0.7, 0.7, 0.7);
-	glVertex3f(-1.0f, y, 1.0f);
-	glVertex3f(-1.0f, y, -1.0f);
-	glVertex3f(1.0f, y, -1.0f);
-	glVertex3f(1.0f, y, 1.0f);
-
-	glEnd();
-
-	glPopMatrix();
-}
-
 /**
 * Render the message we want to display to a texture for drawing
 * @param message The message we want to display
