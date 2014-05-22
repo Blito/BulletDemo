@@ -41,13 +41,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(FrameworkSdkDir)include;$(SolutionDir)dependencies\include\bullet;$(SolutionDir)dependencies\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\include\assimp;$(FrameworkSdkDir)include;$(SolutionDir)dependencies\include\bullet;$(SolutionDir)dependencies\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(FrameworkSdkDir)lib;$(SolutionDir)dependencies\lib\bullet;$(SolutionDir)dependencies\lib\SDL2\x86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;BulletSoftBody_Debug.lib;BulletDynamics_vs2010_debug.lib;BulletCollision_vs2010_debug.lib;LinearMath_vs2010_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(FrameworkSdkDir)lib;$(SolutionDir)dependencies\lib\bullet;$(SolutionDir)dependencies\lib\SDL2\x86;$(SolutionDir)dependencies\lib\assimp\assimp_debug-dll_win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;BulletSoftBody_Debug.lib;BulletDynamics_vs2010_debug.lib;BulletCollision_vs2010_debug.lib;LinearMath_vs2010_debug.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
@@ -73,6 +73,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OpenGLWindow.cpp" />
     <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="RigidObject.cpp" />
     <ClCompile Include="SceneExample.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +82,7 @@
     <ClInclude Include="OpenGLWindow.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="RenderedObject.h" />
+    <ClInclude Include="RigidObject.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneExample.h" />
   </ItemGroup>

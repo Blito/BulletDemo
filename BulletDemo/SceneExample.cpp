@@ -7,6 +7,7 @@
 #include "Box.h"
 #include "Plane.h"
 #include "Cloth.h"
+#include "RigidObject.h"
 
 #define ANGLEH 0
 #define ANGLEV 0
@@ -50,12 +51,12 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	world->setGravity(btVector3(0,-10.0f,0));
 
 	// Create floor
-	RenderedObject * plane = new Plane(-2);
+	RenderedObject * plane = new Plane(-20);
 	plane->addToWorld(world);
 	toRender.push_back(plane);
 
 	// Create cloth
-	float s = 3.0, h = 5.0;
+	/*float s = 3.0, h = 5.0;
 	RenderedObject * cloth = new Cloth(world->getWorldInfo(), 
 				btVector3(-s, h, -s), btVector3(s, h, -s), btVector3(-s, h, s), btVector3(s, h, s),
 				30, 30, 4+8);
@@ -66,7 +67,12 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	createBox(1, 2, 1,-3,0,0, 2);
 	createBox(2, 1, 1,0,0,0,5);
 	createBox(1, 1, 3,0,3,0.7,3);
-	createBox(1, 1, 1,3,0,0,7);
+	createBox(1, 1, 1,3,0,0,7);*/
+
+	// Create house
+	std::string filename = "D:/Proyectos/BulletDemo/BulletDemo/resources/teapot.obj";
+	RenderedObject * house = new RigidObject(filename);
+	toRender.push_back(house);
 }
 
 SceneExample::~SceneExample() {
