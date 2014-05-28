@@ -1,8 +1,8 @@
 #pragma once
 #include "Scene.h"
+#include "Box.h"
 #include <iostream>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
 #include <gl/GLU.h>
 #include <SDL2/SDL_ttf.h>
 #include <string>
@@ -15,7 +15,6 @@
 #include <bullet\BulletSoftBody\btSoftBodySolvers.h>
 #include <bullet\BulletCollision\CollisionDispatch\btCollisionConfiguration.h>
 #include <bullet\BulletDynamics\Dynamics\btRigidBody.h>
-#include "Box.h"
 
 /**
  * Example scene.

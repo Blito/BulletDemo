@@ -46,8 +46,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(FrameworkSdkDir)lib;$(SolutionDir)dependencies\lib\bullet;$(SolutionDir)dependencies\lib\SDL2\x86;$(SolutionDir)dependencies\lib\assimp\assimp_debug-dll_win32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;BulletSoftBody_Debug.lib;BulletDynamics_vs2010_debug.lib;BulletCollision_vs2010_debug.lib;LinearMath_vs2010_debug.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(FrameworkSdkDir)lib;$(SolutionDir)dependencies\lib\bullet;$(SolutionDir)dependencies\lib\SDL2\x86;$(SolutionDir)dependencies\lib\assimp\assimp_debug-dll_win32;$(SolutionDir)dependencies\lib\glew\Release\Win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;glu32.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;BulletSoftBody_Debug.lib;BulletDynamics_vs2010_debug.lib;BulletCollision_vs2010_debug.lib;LinearMath_vs2010_debug.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>

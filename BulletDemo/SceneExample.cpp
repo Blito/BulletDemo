@@ -51,12 +51,12 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	world->setGravity(btVector3(0,-10.0f,0));
 
 	// Create floor
-	RenderedObject * plane = new Plane(-20);
+	/*RenderedObject * plane = new Plane(-20);
 	plane->addToWorld(world);
 	toRender.push_back(plane);
 
 	// Create cloth
-	/*float s = 3.0, h = 5.0;
+	float s = 3.0, h = 5.0;
 	RenderedObject * cloth = new Cloth(world->getWorldInfo(), 
 				btVector3(-s, h, -s), btVector3(s, h, -s), btVector3(-s, h, s), btVector3(s, h, s),
 				30, 30, 4+8);
@@ -70,9 +70,9 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	createBox(1, 1, 1,3,0,0,7);*/
 
 	// Create house
-	std::string filename = "D:/Proyectos/BulletDemo/BulletDemo/resources/teapot.obj";
+	/*std::string filename = "D:/Proyectos/BulletDemo/BulletDemo/resources/teapot.obj";
 	RenderedObject * house = new RigidObject(filename);
-	toRender.push_back(house);
+	toRender.push_back(house);*/
 }
 
 SceneExample::~SceneExample() {
@@ -182,9 +182,9 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
 
 void SceneExample::render() {
 	glLoadIdentity();
-	gluLookAt(xCam, yCam, zCam,
+	/*gluLookAt(xCam, yCam, zCam,
 			xCam+lx, yCam+ly,  zCam+lz,
-			0.0f, 1.0f,  0.0f);
+			0.0f, 1.0f,  0.0f);*/
 	
 	for (int i = 0; i < toRender.size(); i++) {
 		toRender[i]->render();

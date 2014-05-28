@@ -1,5 +1,6 @@
 #pragma once
 #include "RenderedObject.h"
+#include "GL/glew.h"
 #include <bullet\BulletSoftBody\btSoftRigidDynamicsWorld.h>
 
 /**
@@ -9,6 +10,8 @@
 class Box : public RenderedObject
 {
 public:
+	static bool load();
+
 	/**
 	 * Constructor.
 	 * @param mass If > 0, has physics interactions if added to a world.
@@ -21,6 +24,8 @@ public:
 	bool addToWorld(btDynamicsWorld * world);
 
 private:
+	static const GLchar * vertexSource;
+	static const GLchar * fragmentSource;
 	btRigidBody * rigidBody;
 };
 

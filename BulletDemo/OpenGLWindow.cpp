@@ -1,18 +1,36 @@
 #include "OpenGLWindow.h"
+#include <stdio.h>
 
 OpenGLWindow::OpenGLWindow(int width, int height)
 {
 
+	SDL_Init(SDL_INIT_VIDEO);
+
+	// Ask for OpenGL 3.2 context
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-
-	SDL_Init(SDL_INIT_VIDEO);
 
 	SDL_RendererInfo displayRendererInfo;
 	SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_OPENGL, &displayWindow, &displayRenderer);
 	SDL_GLContext glContext = SDL_GL_CreateContext(displayWindow);
 	SDL_GetRendererInfo(displayRenderer, &displayRendererInfo);
-	/*TODO: Check that we have OpenGL */
+	
+	// Check that we have OpenGL
+	glewExperimental = GL_TRUE;
+	GLenum err = glewInit();
+	if (GLEW_OK != err)
+	{
+	  /* Problem: glewInit failed, something is seriously wrong. */
+	  fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+	}
+	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+
+	GLuint vertexBuffer;
+	glGenBuffers(1, &vertexBuffer);
+
+	printf("%u\n", vertexBuffer);
+
 	if ((displayRendererInfo.flags & SDL_RENDERER_ACCELERATED) == 0 || 
 		(displayRendererInfo.flags & SDL_RENDERER_TARGETTEXTURE) == 0) {
 			/*TODO: Handle this. We have no render surface and not accelerated. */
