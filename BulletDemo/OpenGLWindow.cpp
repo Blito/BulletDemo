@@ -21,15 +21,9 @@ OpenGLWindow::OpenGLWindow(int width, int height)
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 	{
-	  /* Problem: glewInit failed, something is seriously wrong. */
 	  fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 	}
 	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
-
-	GLuint vertexBuffer;
-	glGenBuffers(1, &vertexBuffer);
-
-	printf("%u\n", vertexBuffer);
 
 	if ((displayRendererInfo.flags & SDL_RENDERER_ACCELERATED) == 0 || 
 		(displayRendererInfo.flags & SDL_RENDERER_TARGETTEXTURE) == 0) {

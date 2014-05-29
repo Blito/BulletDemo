@@ -64,7 +64,10 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	toRender.push_back(cloth);
 
 	// Create cubes
+	*/
+	Box::load();
 	createBox(1, 2, 1,-3,0,0, 2);
+	/*
 	createBox(2, 1, 1,0,0,0,5);
 	createBox(1, 1, 3,0,3,0.7,3);
 	createBox(1, 1, 1,3,0,0,7);*/
