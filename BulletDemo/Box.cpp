@@ -1,16 +1,22 @@
 #include "Box.h"
 #include <bullet\LinearMath\btDefaultMotionState.h>
 #include <bullet\BulletCollision\CollisionShapes\btBoxShape.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 // Vertex Shader
 const GLchar* Box::vertexSource = 
 	"#version 150 core\n"
-    "in vec2 position;"
+    "in vec3 position;"
 	"in vec3 color;"
 	"out vec3 Color;"
+	"uniform mat4 model;"
+	"uniform mat4 view;"
+	"uniform mat4 proj;"
     "void main() {"
 	"	Color = color;"
-    "   gl_Position = vec4(position, 0.0, 1.0);"
+    "   gl_Position = proj * view * model * vec4(position, 1.0);"
     "}";
 
 // Fragment Shader
@@ -21,6 +27,10 @@ const GLchar* Box::fragmentSource =
     "void main() {"
     "   outColor = vec4(Color, 1.0);"
     "}";
+
+GLint Box::uniModel = 0;
+GLint Box::uniView = 0;
+GLint Box::uniProj = 0;
 
 bool Box::load() {
 	// Create Vertex Array Object
@@ -36,24 +46,62 @@ bool Box::load() {
 	GLuint ebo;
 	glGenBuffers(1, &ebo);
 
-    float vertices[] = {
-		-0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // Top-left
-		 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // Top-right
-		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // Bottom-right
-		-0.5f, -0.5f, 1.0f, 1.0f, 1.0f  // Bottom-left
-	};
+    GLfloat vertices[] = {
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f
+    };
+
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	GLuint elements[] = {
+	/*GLuint elements[] = {
 		0, 1, 2,
 		2, 3, 0
 	};
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-		sizeof(elements), elements, GL_STATIC_DRAW);
+		sizeof(elements), elements, GL_STATIC_DRAW);*/
 
     // Create and compile the vertex shader
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -77,13 +125,16 @@ bool Box::load() {
 	// in vec2 position;
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
     glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0);
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
 
 	// in vec3 color;
 	GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
 	glEnableVertexAttribArray(colAttrib);
-	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE,
-						   5*sizeof(float), (void*)(2*sizeof(float)));
+	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+
+	uniModel = glGetUniformLocation(shaderProgram, "model");
+	uniView = glGetUniformLocation(shaderProgram, "view");
+	uniProj = glGetUniformLocation(shaderProgram, "proj");
 	
 	return true;
 }
@@ -101,6 +152,7 @@ Box::Box(float width, float height, float depth, float x, float y, float z, floa
 	btMotionState * motion = new btDefaultMotionState(t);
 	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, cube, inertia);
 	rigidBody = new btRigidBody(info);
+	i = 0.0f;
 }
 
 
@@ -110,9 +162,27 @@ Box::~Box(void)
 
 void Box::render() {
 
+	glm::mat4 trans;
+	trans = glm::rotate(trans, i, glm::vec3(0.0f, 0.0f, 1.0f));
+
+	i += 0.3f;
+	if (i >= 360.0f) i -= 360.0f;
+
+	glm::mat4 view = glm::lookAt(
+		glm::vec3(1.2f, 1.2f, 1.2f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f)
+	);
+
+	glm::mat4 proj = glm::perspective(45.0f, 800.0f / 600.0f, 1.0f, 10.0f);
+	
+	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(trans));
+	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+
 	// Draw a triangle from the 3 vertices
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	/*btVector3 extent = ((btBoxShape*)rigidBody->getCollisionShape())->getHalfExtentsWithoutMargin();
 	btTransform t;
 	rigidBody->getMotionState()->getWorldTransform(t);

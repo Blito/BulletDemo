@@ -27,5 +27,12 @@ private:
 	static const GLchar * vertexSource;
 	static const GLchar * fragmentSource;
 	btRigidBody * rigidBody;
+
+	float i;
+
+	// Fragment shader variables
+	static GLint uniModel;
+	static GLint uniView;
+	static GLint uniProj;
 };
 
