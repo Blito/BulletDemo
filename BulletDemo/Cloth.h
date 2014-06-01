@@ -29,7 +29,7 @@ public:
 		int fixeds);
 	~Cloth(void);
 
-	void render();
+	void render(glm::mat4 parentTransform);
 	bool addToWorld(btDynamicsWorld * world);
 
 private:

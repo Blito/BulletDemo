@@ -19,7 +19,7 @@ public:
 	Box(float width, float height, float depth, float x = 0, float y = 0, float z = 0, float mass = 0);
 	~Box(void);
 
-	void render();
+	void render(glm::mat4 parentTransform);
 	btRigidBody * getRigidBody() { return rigidBody; }
 	bool addToWorld(btDynamicsWorld * world);
 
@@ -28,11 +28,9 @@ private:
 	static const GLchar * fragmentSource;
 	btRigidBody * rigidBody;
 
-	float i;
-
 	// Fragment shader variables
-	static GLint uniModel;
-	static GLint uniView;
-	static GLint uniProj;
+	static GLint uniPVM;
+
+	glm::mat4 model; //< local transformation matrix
 };
 

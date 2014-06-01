@@ -9,7 +9,7 @@ class RigidObject :
 public:
 	RigidObject(std::string& filename);
 	~RigidObject(void);
-	void render();
+	void render(glm::mat4 parentTransform);
 	bool addToWorld(btDynamicsWorld * world);
 
 protected:

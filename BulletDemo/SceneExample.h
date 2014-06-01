@@ -15,6 +15,7 @@
 #include <bullet\BulletSoftBody\btSoftBodySolvers.h>
 #include <bullet\BulletCollision\CollisionDispatch\btCollisionConfiguration.h>
 #include <bullet\BulletDynamics\Dynamics\btRigidBody.h>
+#include <glm/glm.hpp>
 
 /**
  * Example scene.
@@ -75,5 +76,8 @@ private:
 	// Fonts
 	TTF_Font *font;
 	SDL_Texture * text;
+
+	// Rendering matrixes
+	glm::mat4 view, proj;
 };
 

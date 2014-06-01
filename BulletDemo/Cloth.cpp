@@ -21,7 +21,7 @@ Cloth::~Cloth(void)
 {
 }
 
-void Cloth::render() {
+void Cloth::render(glm::mat4 parentTransform) {
 	glColor3f(1.0, 0.0, 1.0);
 	glBegin(GL_TRIANGLES);
 	// For each face in the cloth

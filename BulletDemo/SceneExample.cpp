@@ -9,6 +9,9 @@
 #include "Cloth.h"
 #include "RigidObject.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #define ANGLEH 0
 #define ANGLEV 0
 #define XCAM 0
@@ -50,11 +53,15 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	world = new btSoftRigidDynamicsWorld(dispatcher, broadphase, solver, collisionConfig, softbodySolver);
 	world->setGravity(btVector3(0,-10.0f,0));
 
+	proj = glm::perspective(45.0f, 800.0f / 600.0f, 0.0f, 200.0f);
+
 	// Create floor
-	/*RenderedObject * plane = new Plane(-20);
+	// 
+	Plane::load();
+	RenderedObject * plane = new Plane(-20);
 	plane->addToWorld(world);
 	toRender.push_back(plane);
-
+	/*
 	// Create cloth
 	float s = 3.0, h = 5.0;
 	RenderedObject * cloth = new Cloth(world->getWorldInfo(), 
@@ -65,8 +72,9 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 
 	// Create cubes
 	*/
-	Box::load();
-	createBox(1, 2, 1,-3,0,0, 2);
+	//Box::load();
+	//createBox(1, 2, 1,-3,0,0, 2);
+
 	/*
 	createBox(2, 1, 1,0,0,0,5);
 	createBox(1, 1, 3,0,3,0.7,3);
@@ -185,12 +193,17 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
 
 void SceneExample::render() {
 	glLoadIdentity();
-	/*gluLookAt(xCam, yCam, zCam,
-			xCam+lx, yCam+ly,  zCam+lz,
-			0.0f, 1.0f,  0.0f);*/
+
+	view = glm::lookAt(
+		glm::vec3(xCam, yCam, zCam),
+		glm::vec3(xCam+lx, yCam+ly, zCam+lz),
+		glm::vec3(0.0f, 1.0f, 0.0f)
+		);
+
+	glm::mat4 parentMatrix = proj * view;
 	
 	for (int i = 0; i < toRender.size(); i++) {
-		toRender[i]->render();
+		toRender[i]->render(parentMatrix);
 	}	
 
 	glFlush();

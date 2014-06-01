@@ -25,7 +25,7 @@ RigidObject::~RigidObject(void)
 {
 }
 
-void RigidObject::render() {
+void RigidObject::render(glm::mat4 parentTransform) {
 	
 }
 

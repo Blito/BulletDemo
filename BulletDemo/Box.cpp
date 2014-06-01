@@ -1,7 +1,6 @@
 #include "Box.h"
 #include <bullet\LinearMath\btDefaultMotionState.h>
 #include <bullet\BulletCollision\CollisionShapes\btBoxShape.h>
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -11,12 +10,10 @@ const GLchar* Box::vertexSource =
     "in vec3 position;"
 	"in vec3 color;"
 	"out vec3 Color;"
-	"uniform mat4 model;"
-	"uniform mat4 view;"
-	"uniform mat4 proj;"
+	"uniform mat4 pvm;"
     "void main() {"
 	"	Color = color;"
-    "   gl_Position = proj * view * model * vec4(position, 1.0);"
+    "   gl_Position = pvm * vec4(position, 1.0);"
     "}";
 
 // Fragment Shader
@@ -28,9 +25,7 @@ const GLchar* Box::fragmentSource =
     "   outColor = vec4(Color, 1.0);"
     "}";
 
-GLint Box::uniModel = 0;
-GLint Box::uniView = 0;
-GLint Box::uniProj = 0;
+GLint Box::uniPVM = 0;
 
 bool Box::load() {
 	// Create Vertex Array Object
@@ -132,9 +127,7 @@ bool Box::load() {
 	glEnableVertexAttribArray(colAttrib);
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
-	uniModel = glGetUniformLocation(shaderProgram, "model");
-	uniView = glGetUniformLocation(shaderProgram, "view");
-	uniProj = glGetUniformLocation(shaderProgram, "proj");
+	uniPVM = glGetUniformLocation(shaderProgram, "pvm");
 	
 	return true;
 }
@@ -152,7 +145,6 @@ Box::Box(float width, float height, float depth, float x, float y, float z, floa
 	btMotionState * motion = new btDefaultMotionState(t);
 	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, cube, inertia);
 	rigidBody = new btRigidBody(info);
-	i = 0.0f;
 }
 
 
@@ -160,28 +152,22 @@ Box::~Box(void)
 {
 }
 
-void Box::render() {
+void Box::render(glm::mat4 parentTransform) {
 
-	glm::mat4 trans;
-	trans = glm::rotate(trans, i, glm::vec3(0.0f, 0.0f, 1.0f));
+	glm::mat4 model;
 
-	i += 0.3f;
-	if (i >= 360.0f) i -= 360.0f;
+	float mat[16];
+	btTransform t;
+	rigidBody->getMotionState()->getWorldTransform(t);
+	t.getOpenGLMatrix(mat);
 
-	glm::mat4 view = glm::lookAt(
-		glm::vec3(1.2f, 1.2f, 1.2f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 1.0f)
-	);
+	model = glm::make_mat4(mat);;
 
-	glm::mat4 proj = glm::perspective(45.0f, 800.0f / 600.0f, 1.0f, 10.0f);
-	
-	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(trans));
-	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+	glm::mat4 pvm = parentTransform * model;
 
-	// Draw a triangle from the 3 vertices
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+	glUniformMatrix4fv(uniPVM, 1, GL_FALSE, glm::value_ptr(pvm));
+
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	/*btVector3 extent = ((btBoxShape*)rigidBody->getCollisionShape())->getHalfExtentsWithoutMargin();
 	btTransform t;
