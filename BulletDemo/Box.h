@@ -24,9 +24,13 @@ public:
 	bool addToWorld(btDynamicsWorld * world);
 
 private:
+	static GLuint vbo;
+    
 	static const GLchar * vertexSource;
 	static const GLchar * fragmentSource;
 	btRigidBody * rigidBody;
+
+	float width, height, depth;
 
 	// Fragment shader variables
 	static GLint uniPVM;

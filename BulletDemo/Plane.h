@@ -25,6 +25,8 @@ public:
 	bool addToWorld(btDynamicsWorld * world);
 
 private:
+	static GLuint vbo;
+
 	static const GLchar * vertexSource;
 	static const GLchar * fragmentSource;
 

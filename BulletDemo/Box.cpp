@@ -1,7 +1,9 @@
 #include "Box.h"
+
 #include <bullet\LinearMath\btDefaultMotionState.h>
 #include <bullet\BulletCollision\CollisionShapes\btBoxShape.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 // Vertex Shader
@@ -26,6 +28,7 @@ const GLchar* Box::fragmentSource =
     "}";
 
 GLint Box::uniPVM = 0;
+GLuint Box::vbo = 0;
 
 bool Box::load() {
 	// Create Vertex Array Object
@@ -34,7 +37,6 @@ bool Box::load() {
     glBindVertexArray(vao);
 
 	// Create a Vertex Buffer Object and copy the vertex data to it
-    GLuint vbo;
     glGenBuffers(1, &vbo);
 
 	// Create an Element Buffer Object
@@ -42,33 +44,33 @@ bool Box::load() {
 	glGenBuffers(1, &ebo);
 
     GLfloat vertices[] = {
-        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 
-        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
 
-        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
         -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
 
-         0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
 
         -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
          0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
@@ -77,12 +79,12 @@ bool Box::load() {
         -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
         -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
 
-        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f
+        -0.5f,  0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f
     };
 
 
@@ -132,7 +134,8 @@ bool Box::load() {
 	return true;
 }
 
-Box::Box(float width, float height, float depth, float x, float y, float z, float mass) {
+Box::Box(float width, float height, float depth, float x, float y, float z, float mass) 
+	: width(width), height(height), depth(depth) {
 	btTransform t;
 	t.setIdentity();
 	t.setOrigin(btVector3(x,y,z));
@@ -153,72 +156,20 @@ Box::~Box(void)
 }
 
 void Box::render(glm::mat4 parentTransform) {
-
-	glm::mat4 model;
-
+	
 	float mat[16];
 	btTransform t;
 	rigidBody->getMotionState()->getWorldTransform(t);
 	t.getOpenGLMatrix(mat);
 
-	model = glm::make_mat4(mat);;
+	glm::mat4 model = glm::make_mat4(mat);
 
-	glm::mat4 pvm = parentTransform * model;
+	glm::mat4 pvm = parentTransform * model * glm::scale(glm::vec3(width, height, depth));
 
 	glUniformMatrix4fv(uniPVM, 1, GL_FALSE, glm::value_ptr(pvm));
-
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	/*btVector3 extent = ((btBoxShape*)rigidBody->getCollisionShape())->getHalfExtentsWithoutMargin();
-	btTransform t;
-	rigidBody->getMotionState()->getWorldTransform(t);
-	float mat[16];
-	t.getOpenGLMatrix(mat);
-	glPushMatrix();
-        glMultMatrixf(mat);     //translation,rotation
-		glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-        glBegin(GL_QUADS);
-                glVertex3f(-extent.x(),extent.y(),-extent.z());
-                glVertex3f(-extent.x(),-extent.y(),-extent.z());
-                glVertex3f(-extent.x(),-extent.y(),extent.z());
-                glVertex3f(-extent.x(),extent.y(),extent.z());         
-        glEnd();
-		glColor4f(1.0f, 0.5f, 0.0f, 1.0f);
-        glBegin(GL_QUADS);
-                glVertex3f(extent.x(),extent.y(),-extent.z());
-                glVertex3f(extent.x(),-extent.y(),-extent.z());
-                glVertex3f(extent.x(),-extent.y(),extent.z());
-                glVertex3f(extent.x(),extent.y(),extent.z());          
-        glEnd();
-		glColor4f(0.0f, 0.5f, 1.0f, 1.0f);
-        glBegin(GL_QUADS);
-                glVertex3f(-extent.x(),extent.y(),extent.z());
-                glVertex3f(-extent.x(),-extent.y(),extent.z());
-                glVertex3f(extent.x(),-extent.y(),extent.z());
-                glVertex3f(extent.x(),extent.y(),extent.z());          
-        glEnd();
-		glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
-        glBegin(GL_QUADS);
-                glVertex3f(-extent.x(),extent.y(),-extent.z());
-                glVertex3f(-extent.x(),-extent.y(),-extent.z());
-                glVertex3f(extent.x(),-extent.y(),-extent.z());
-                glVertex3f(extent.x(),extent.y(),-extent.z());         
-        glEnd();
-		glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
-        glBegin(GL_QUADS);
-                glVertex3f(-extent.x(),extent.y(),-extent.z());
-                glVertex3f(-extent.x(),extent.y(),extent.z());
-                glVertex3f(extent.x(),extent.y(),extent.z());
-                glVertex3f(extent.x(),extent.y(),-extent.z());         
-        glEnd();
-		glColor4f(0.5f, 0.0f, 1.0f, 1.0f);
-        glBegin(GL_QUADS);
-                glVertex3f(-extent.x(),-extent.y(),-extent.z());
-                glVertex3f(-extent.x(),-extent.y(),extent.z());
-                glVertex3f(extent.x(),-extent.y(),extent.z());
-                glVertex3f(extent.x(),-extent.y(),-extent.z());        
-        glEnd();               
-    glPopMatrix();*/
+
 }
 
 bool Box::addToWorld(btDynamicsWorld * world) {

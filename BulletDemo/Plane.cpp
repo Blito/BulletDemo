@@ -28,6 +28,7 @@ const GLchar* Plane::fragmentSource =
 	"}";
 
 GLint Plane::uniPVM = 0;
+GLuint Plane::vbo = 0;
 
 bool Plane::load() {
 	// Create Vertex Array Object
@@ -36,7 +37,6 @@ bool Plane::load() {
     glBindVertexArray(vao);
 
 	// Create a Vertex Buffer Object and copy the vertex data to it
-    GLuint vbo;
     glGenBuffers(1, &vbo);
 
 	// Create an Element Buffer Object
@@ -113,17 +113,15 @@ Plane::Plane(int y, unsigned width, unsigned depth) : y(y), width(width), depth(
 void Plane::render(glm::mat4 parentTransform) {
 
 	glm::mat4 model;
-	//model = glm::scale(model, glm::vec3(width, 1.0f, depth));
-	//model = model * glm::rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-	//model = model * glm::translate(glm::vec3(0.0f, y, 0.0f));
 	model = glm::scale(glm::vec3(width, 1.0, depth)) 
-		  * glm::rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f)) 
-		  * glm::translate(glm::vec3(0.0f, 0.0f, 1.0f));
+		  * glm::rotate(-90.0f, glm::vec3(1.0f, 0.0f, 0.0f)) 
+		  * glm::translate(glm::vec3(0.0f, 0.0f, y));
 
 	glm::mat4 pvm = parentTransform * model;
 	
 	glUniformMatrix4fv(uniPVM, 1, GL_FALSE, glm::value_ptr(pvm));
 
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 }
