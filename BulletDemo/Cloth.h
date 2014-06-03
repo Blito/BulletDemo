@@ -1,5 +1,6 @@
 #pragma once
 #include "renderedobject.h"
+#include "GL/glew.h"
 #include <bullet\BulletSoftBody\btSoftRigidDynamicsWorld.h>
 #include <bullet\BulletSoftBody\btSoftBodyHelpers.h>
 
@@ -11,6 +12,8 @@ class Cloth :
 	public RenderedObject
 {
 public:
+	static bool load();
+
 	/**
 	 * Constructor.
 	 * Creates the cloth patch using a helper class from Bullet.
@@ -33,6 +36,19 @@ public:
 	bool addToWorld(btDynamicsWorld * world);
 
 private:
+	static GLuint vbo;
+	static GLint posAttrib;
+	static GLint colAttrib;
+	static GLuint shaderProgram;
+
+	static const GLchar * vertexSource;
+	static const GLchar * fragmentSource;
+
 	btSoftBody * softBody; //< Bullet's internal representation of the cloth
+	
+	// Fragment shader variables
+	static GLint uniPVM;
+
+	glm::mat4 model; //< local transformation matrix
 };
 

@@ -29,6 +29,9 @@ const GLchar* Plane::fragmentSource =
 
 GLint Plane::uniPVM = 0;
 GLuint Plane::vbo = 0;
+GLint Plane::posAttrib = 0;
+GLint Plane::colAttrib = 0;
+GLuint Plane::shaderProgram = 0;
 
 bool Plane::load() {
 	// Create Vertex Array Object
@@ -77,7 +80,7 @@ bool Plane::load() {
     glCompileShader(fragmentShader);
 
     // Link the vertex and fragment shader into a shader program
-    GLuint shaderProgram = glCreateProgram();
+    shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glBindFragDataLocation(shaderProgram, 0, "outColor");
@@ -85,13 +88,13 @@ bool Plane::load() {
     glUseProgram(shaderProgram);
 
     // Specify the layout of the vertex data
-	// in vec2 position;
-    GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
+	// in vec3 position;
+    posAttrib = glGetAttribLocation(shaderProgram, "position");
     glEnableVertexAttribArray(posAttrib);
     glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
 
 	// in vec3 color;
-	GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
+	colAttrib = glGetAttribLocation(shaderProgram, "color");
 	glEnableVertexAttribArray(colAttrib);
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
@@ -119,10 +122,16 @@ void Plane::render(glm::mat4 parentTransform) {
 
 	glm::mat4 pvm = parentTransform * model;
 	
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	
+	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+
 	glUniformMatrix4fv(uniPVM, 1, GL_FALSE, glm::value_ptr(pvm));
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 }
 

@@ -25,6 +25,9 @@ public:
 
 private:
 	static GLuint vbo;
+	static GLint posAttrib;
+	static GLint colAttrib;
+	static GLuint shaderProgram;
     
 	static const GLchar * vertexSource;
 	static const GLchar * fragmentSource;
