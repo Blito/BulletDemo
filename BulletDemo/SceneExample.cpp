@@ -56,28 +56,28 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	proj = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 200.0f);
 
 	// Create floor
-	//Box::load();
-	//Plane::load();
+	Box::load();
+	Plane::load();
 	Cloth::load();
 
-	/*RenderedObject * plane = new Plane(-2);
+	RenderedObject * plane = new Plane(-2);
 	plane->addToWorld(world);
-	toRender.push_back(plane);*/
+	toRender.push_back(plane);
 	
 	// Create cloth
 	float s = 3.0, h = 5.0;
 	RenderedObject * cloth = new Cloth(world->getWorldInfo(), 
 				btVector3(-s, h, -s), btVector3(s, h, -s), btVector3(-s, h, s), btVector3(s, h, s),
-				5, 5, 4+8);
+				10, 10, 4+8);
 	cloth->addToWorld(world);
 	toRender.push_back(cloth);
 
 	// Create cubes
 	
-	/*createBox(1, 2, 1,-3,0,0, 2);
+	createBox(1, 2, 1,-3,0,0, 2);
 	createBox(2, 1, 1,0,0,0,5);
 	createBox(1, 1, 3,0,3,0.7,3);
-	createBox(1, 1, 1,3,0,0,7);*/
+	createBox(1, 1, 1,3,0,0,7);
 
 	// Create house
 	/*std::string filename = "D:/Proyectos/BulletDemo/BulletDemo/resources/teapot.obj";
@@ -110,7 +110,7 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
         {
             /* If the left button was pressed. */
             if (e.button.button == SDL_BUTTON_LEFT) {
-				btRigidBody * bullet = createBox(0.2f, 0.2f, 0.2f, xCam, yCam, zCam, 3)->getRigidBody();
+				btRigidBody * bullet = createBox(0.5f, 0.5f, 0.5f, xCam, yCam, zCam, 3)->getRigidBody();
 				btVector3 direction(lx, ly, lz);
 				bullet->setLinearVelocity(direction*12);
 				//bullet->applyCentralForce(direction*-1);
@@ -191,7 +191,7 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
 }
 
 void SceneExample::render() {
-	glLoadIdentity();
+	//glLoadIdentity();
 
 	view = glm::lookAt(
 		glm::vec3(xCam, yCam, zCam),

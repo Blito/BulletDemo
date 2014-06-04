@@ -42,19 +42,8 @@ bool Cloth::load() {
 	// Create a Vertex Buffer Object and copy the vertex data to it
     glGenBuffers(1, &vbo);
 
-    /*GLfloat vertices[] = {
-		-1.0f,  1.0f, 0.0, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // Top-left
-		 1.0f,  1.0f, 0.0, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // Top-right
-		 1.0f, -1.0f, 0.0, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // Bottom-right
-
-		 1.0f, -1.0f, 0.0, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // Bottom-right
-		-1.0f, -1.0f, 0.0, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, // Bottom-left
-		-1.0f,  1.0f, 0.0, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f  // Top-left
-    };
-
-
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);*/
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);*/
 	
     // Create and compile the vertex shader
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -100,7 +89,7 @@ Cloth::Cloth(btSoftBodyWorldInfo& worldInfo,
 		int fixeds)
 {
 	softBody = btSoftBodyHelpers::CreatePatch(worldInfo, corner00, corner10, corner01, corner11, resx, resy, fixeds, true);
-	softBody->setTotalMass(3.0);
+	softBody->setTotalMass(1.0);
 	softBody->m_cfg.viterations = 20;
 	softBody->m_cfg.piterations = 20;
 }
@@ -112,66 +101,37 @@ Cloth::~Cloth(void)
 
 void Cloth::render(glm::mat4 parentTransform) {
 
-	GLfloat * vertices = new GLfloat[softBody->m_faces.size()*3*8];
+	int vertCount = softBody->m_faces.size()*3*8;
+	GLfloat * vertices = new GLfloat[vertCount];
 
-	int k = 0;
 	// For each face in the cloth
 	for (int i = 0; i < softBody->m_faces.size(); i++) {
 		// For each vertex in the face
 		for (int j = 0; j < 3; j++) {
-			/* x */ vertices[(i*3+j)*8] = softBody->m_faces[i].m_n[j]->m_x.x();
-			/* y */ vertices[(i*3+j)*8+1] = softBody->m_faces[i].m_n[j]->m_x.y();
-			/* z */ vertices[(i*3+j)*8+2] = softBody->m_faces[i].m_n[j]->m_x.z();
-			/* r */ vertices[(i*3+j)*8+3] = 1.0f;
-			/* g */ vertices[(i*3+j)*8+4] = 1.0f;
-			/* b */ vertices[(i*3+j)*8+5] = 1.0f;
-			/* u */ vertices[(i*3+j)*8+6] = 0.0f;
-			/* v */ vertices[(i*3+j)*8+7] = 0.0f;
-			k++;
+			vertices[(i*3+j)*8] = softBody->m_faces[i].m_n[j]->m_x.x();   // x 
+			vertices[(i*3+j)*8+1] = softBody->m_faces[i].m_n[j]->m_x.y(); // y 
+			vertices[(i*3+j)*8+2] = softBody->m_faces[i].m_n[j]->m_x.z(); // z 
+			vertices[(i*3+j)*8+3] = 1.0f;								  // r 
+			vertices[(i*3+j)*8+4] = 0.0f;								  // g 
+			vertices[(i*3+j)*8+5] = 1.0f;								  // b 
+			vertices[(i*3+j)*8+6] = 0.0f;								  // u 
+			vertices[(i*3+j)*8+7] = 0.0f;								  // v 
 		}
 	}
-	std::cout << k << " " << softBody->m_faces.size()*3*8 << std::endl;
 
-	glm::mat4 model;
-
-	glm::mat4 pvm = parentTransform * model;
+	glm::mat4 pvm = parentTransform;
 	
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*vertCount, &(*vertices), GL_DYNAMIC_DRAW);
 	
 	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
 	glUniformMatrix4fv(uniPVM, 1, GL_FALSE, glm::value_ptr(pvm));
 
-	glDrawArrays(GL_TRIANGLES, 0, softBody->m_faces.size()*3);
+	glDrawArrays(GL_TRIANGLES, 0, vertCount);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	/*
-	glColor3f(1.0, 0.0, 1.0);
-	glBegin(GL_TRIANGLES);
-	// For each face in the cloth
-	for (int i = 0; i < softBody->m_faces.size(); i++) {
-		// For each vertex in the face
-		for (int j = 0; j < 3; j++) {
-			glVertex3f(softBody->m_faces[i].m_n[j]->m_x.x(),
-					   softBody->m_faces[i].m_n[j]->m_x.y(),
-					   softBody->m_faces[i].m_n[j]->m_x.z());
-		}
-	}
-	glEnd();
-	glColor3f(0.0, 0.0, 1.0);
-	glBegin(GL_LINES);
-	// For each link in the cloth
-	for (int i = 0; i < softBody->m_links.size(); i++) {
-		// For each vertex in the link
-		for (int j = 0; j < 2; j++) {
-			glVertex3f(softBody->m_links[i].m_n[j]->m_x.x(),
-					   softBody->m_links[i].m_n[j]->m_x.y(),
-					   softBody->m_links[i].m_n[j]->m_x.z());
-		}
-	}
-	glEnd();*/
 }
 
 bool Cloth::addToWorld(btDynamicsWorld * world) {
