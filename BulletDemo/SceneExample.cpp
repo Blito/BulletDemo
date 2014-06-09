@@ -8,6 +8,7 @@
 #include "Plane.h"
 #include "Cloth.h"
 #include "RigidObject.h"
+#include "ShaderMgr.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -24,7 +25,8 @@
 
 SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 							   xCam(XCAM), yCam(YCAM), zCam(ZCAM), 
-							   quit(false), 
+							   quit(false),
+							   timeElapsed(0), loops(0),
 							   mov_speed(MOV_SPEED), rot_speed(ROT_SPEED), mouse_sensitivity(MOUSE_SENSITIVITY) {
 	lx = sin(angleH);
 	ly = sin(angleV);
@@ -56,6 +58,9 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	proj = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 200.0f);
 
 	// Create floor
+	
+	GLuint shaderProgram = ShaderMgr::GetSingleton().createProgram("../vertex.shader", "../fragment.shader");
+
 	Box::load();
 	Plane::load();
 	Cloth::load();
@@ -80,9 +85,9 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	createBox(1, 1, 1,3,0,0,7);
 
 	// Create house
-	/*std::string filename = "D:/Proyectos/BulletDemo/BulletDemo/resources/teapot.obj";
+	std::string filename = "../resources/teapot.obj";
 	RenderedObject * house = new RigidObject(filename);
-	toRender.push_back(house);*/
+	toRender.push_back(house);
 }
 
 SceneExample::~SceneExample() {
@@ -187,7 +192,7 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
 	}
 	
 	yCam = yCam > 0 ? yCam - 0.005f : 0;
-	world->stepSimulation(elapsedTimeInMillis*1000);
+	world->stepSimulation((float)elapsedTimeInMillis/1000.0f);
 }
 
 void SceneExample::render() {

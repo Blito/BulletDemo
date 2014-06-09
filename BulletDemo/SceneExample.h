@@ -70,6 +70,8 @@ private:
 	btSoftBodySolver * softbodySolver;
 	std::vector<RenderedObject*> toRender;
 	btRigidBody * playerCollider;
+	float timeElapsed;
+	int loops;
 
 	bool quit;
 

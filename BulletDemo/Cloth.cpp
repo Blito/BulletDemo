@@ -6,27 +6,6 @@
 #include <vector>
 #include <iostream>
 
-// Vertex Shader
-const GLchar* Cloth::vertexSource = 
-	"#version 150 core\n"
-	"in vec3 position;"
-	"in vec3 color;"
-	"out vec3 Color;"
-	"uniform mat4 pvm;"
-	"void main() {"
-	"	Color = color;"
-	"   gl_Position = pvm * vec4(position, 1.0);"
-	"}";
-
-// Fragment Shader
-const GLchar* Cloth::fragmentSource = 
-	"#version 150 core\n"
-	"in vec3 Color;"
-	"out vec4 outColor;"
-	"void main() {"
-	"   outColor = vec4(Color, 1.0);"
-	"}";
-
 GLint Cloth::uniPVM = 0;
 GLuint Cloth::vbo = 0;
 GLint Cloth::posAttrib = 0;
@@ -61,7 +40,7 @@ bool Cloth::load() {
     glAttachShader(shaderProgram, fragmentShader);
     glBindFragDataLocation(shaderProgram, 0, "outColor");
     glLinkProgram(shaderProgram);
-    glUseProgram(shaderProgram);
+    
 
     // Specify the layout of the vertex data
 	// in vec3 position;
@@ -90,8 +69,8 @@ Cloth::Cloth(btSoftBodyWorldInfo& worldInfo,
 {
 	softBody = btSoftBodyHelpers::CreatePatch(worldInfo, corner00, corner10, corner01, corner11, resx, resy, fixeds, true);
 	softBody->setTotalMass(1.0);
-	softBody->m_cfg.viterations = 20;
-	softBody->m_cfg.piterations = 20;
+	softBody->m_cfg.viterations = 30;
+	softBody->m_cfg.piterations = 30;
 }
 
 
@@ -100,6 +79,8 @@ Cloth::~Cloth(void)
 }
 
 void Cloth::render(glm::mat4 parentTransform) {
+	
+	glUseProgram(shaderProgram);
 
 	int vertCount = softBody->m_faces.size()*3*8;
 	GLfloat * vertices = new GLfloat[vertCount];

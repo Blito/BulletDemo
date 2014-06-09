@@ -6,27 +6,6 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// Vertex Shader
-const GLchar* Plane::vertexSource = 
-	"#version 150 core\n"
-	"in vec3 position;"
-	"in vec3 color;"
-	"out vec3 Color;"
-	"uniform mat4 pvm;"
-	"void main() {"
-	"	Color = color;"
-	"   gl_Position = pvm * vec4(position, 1.0);"
-	"}";
-
-// Fragment Shader
-const GLchar* Plane::fragmentSource = 
-	"#version 150 core\n"
-	"in vec3 Color;"
-	"out vec4 outColor;"
-	"void main() {"
-	"   outColor = vec4(Color, 1.0);"
-	"}";
-
 GLint Plane::uniPVM = 0;
 GLuint Plane::vbo = 0;
 GLint Plane::posAttrib = 0;
@@ -85,7 +64,7 @@ bool Plane::load() {
     glAttachShader(shaderProgram, fragmentShader);
     glBindFragDataLocation(shaderProgram, 0, "outColor");
     glLinkProgram(shaderProgram);
-    glUseProgram(shaderProgram);
+    //glUseProgram(shaderProgram);
 
     // Specify the layout of the vertex data
 	// in vec3 position;
@@ -114,6 +93,8 @@ Plane::Plane(int y, unsigned width, unsigned depth) : y(y), width(width), depth(
 }
 
 void Plane::render(glm::mat4 parentTransform) {
+	
+	//glUseProgram(shaderProgram);
 
 	glm::mat4 model;
 	model = glm::scale(glm::vec3(width, 1.0, depth)) 

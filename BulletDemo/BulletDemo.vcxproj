@@ -75,6 +75,7 @@
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="RigidObject.cpp" />
     <ClCompile Include="SceneExample.cpp" />
+    <ClCompile Include="ShaderMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Box.h" />
@@ -85,6 +86,8 @@
     <ClInclude Include="RigidObject.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneExample.h" />
+    <ClInclude Include="ShaderMgr.h" />
+    <ClInclude Include="Singleton.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

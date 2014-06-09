@@ -6,27 +6,6 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// Vertex Shader
-const GLchar* Box::vertexSource = 
-	"#version 150 core\n"
-    "in vec3 position;"
-	"in vec3 color;"
-	"out vec3 Color;"
-	"uniform mat4 pvm;"
-    "void main() {"
-	"	Color = color;"
-    "   gl_Position = pvm * vec4(position, 1.0);"
-    "}";
-
-// Fragment Shader
-const GLchar* Box::fragmentSource = 
-	"#version 150 core\n"
-	"in vec3 Color;"
-	"out vec4 outColor;"
-    "void main() {"
-    "   outColor = vec4(Color, 1.0);"
-    "}";
-
 GLint Box::uniPVM = 0;
 GLuint Box::vbo = 0;
 GLint Box::posAttrib = 0;
@@ -103,24 +82,6 @@ bool Box::load() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 		sizeof(elements), elements, GL_STATIC_DRAW);*/
 
-    // Create and compile the vertex shader
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexSource, NULL);
-    glCompileShader(vertexShader);
-
-    // Create and compile the fragment shader
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-    glCompileShader(fragmentShader);
-
-    // Link the vertex and fragment shader into a shader program
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glBindFragDataLocation(shaderProgram, 0, "outColor");
-    glLinkProgram(shaderProgram);
-    glUseProgram(shaderProgram);
-
     // Specify the layout of the vertex data
 	// in vec2 position;
     posAttrib = glGetAttribLocation(shaderProgram, "position");
@@ -160,6 +121,8 @@ Box::~Box(void)
 
 void Box::render(glm::mat4 parentTransform) {
 	
+	//glUseProgram(shaderProgram);
+
 	float mat[16];
 	btTransform t;
 	rigidBody->getMotionState()->getWorldTransform(t);
