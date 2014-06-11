@@ -1,9 +1,10 @@
 #include "OpenGLWindow.h"
 #include <stdio.h>
+#include <iostream>
+#include <cassert>
 
 OpenGLWindow::OpenGLWindow(int width, int height)
 {
-
 	SDL_Init(SDL_INIT_VIDEO);
 
 	// Ask for OpenGL 3.2 context
@@ -21,18 +22,34 @@ OpenGLWindow::OpenGLWindow(int width, int height)
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 	{
-	  fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+	  fprintf(stdout, "Error: %s\n", glewGetErrorString(err));
 	}
 	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+
+	if (glewIsSupported("GL_VERSION_3_2")) {
+		fprintf(stdout, "OpenGl 3.2 supported.\n");
+	}
 
 	if ((displayRendererInfo.flags & SDL_RENDERER_ACCELERATED) == 0 || 
 		(displayRendererInfo.flags & SDL_RENDERER_TARGETTEXTURE) == 0) {
 			/*TODO: Handle this. We have no render surface and not accelerated. */
 	}
 
+	while ( ( err = glGetError() ) != GL_NO_ERROR) {
+		std::cerr << err;        
+	}
+
 	Display_InitGL();
 
+	while ( ( err = glGetError() ) != GL_NO_ERROR) {
+		std::cerr << err;        
+	}
+
 	Display_SetViewport(width, height);
+
+	while ( ( err = glGetError() ) != GL_NO_ERROR) {
+		std::cerr << err;        
+	}
 
 }
 

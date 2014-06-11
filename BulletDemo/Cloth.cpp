@@ -6,13 +6,18 @@
 #include <vector>
 #include <iostream>
 
+#include "ShaderMgr.h"
+
 GLint Cloth::uniPVM = 0;
 GLuint Cloth::vbo = 0;
 GLint Cloth::posAttrib = 0;
 GLint Cloth::colAttrib = 0;
-GLuint Cloth::shaderProgram = 0;
+GLuint Cloth::sm_shaderProgram = 0;
 
-bool Cloth::load() {
+bool Cloth::load(GLuint shaderProgram) {
+
+	sm_shaderProgram = shaderProgram;
+
 	// Create Vertex Array Object
     GLuint vao;
     glGenVertexArrays(1, &vao);
@@ -22,25 +27,7 @@ bool Cloth::load() {
     glGenBuffers(1, &vbo);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    //glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);*/
-	
-    // Create and compile the vertex shader
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexSource, NULL);
-    glCompileShader(vertexShader);
-
-    // Create and compile the fragment shader
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-    glCompileShader(fragmentShader);
-
-    // Link the vertex and fragment shader into a shader program
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glBindFragDataLocation(shaderProgram, 0, "outColor");
-    glLinkProgram(shaderProgram);
-    
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);*/  
 
     // Specify the layout of the vertex data
 	// in vec3 position;
@@ -80,10 +67,11 @@ Cloth::~Cloth(void)
 
 void Cloth::render(glm::mat4 parentTransform) {
 	
-	glUseProgram(shaderProgram);
+	ShaderMgr::GetSingleton().useShader(sm_shaderProgram);
 
 	int vertCount = softBody->m_faces.size()*3*8;
 	GLfloat * vertices = new GLfloat[vertCount];
+	// TODO: delete vertices;
 
 	// For each face in the cloth
 	for (int i = 0; i < softBody->m_faces.size(); i++) {

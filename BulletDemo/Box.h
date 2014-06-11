@@ -10,7 +10,7 @@
 class Box : public RenderedObject
 {
 public:
-	static bool load();
+	static bool load(GLuint shaderProgram);
 
 	/**
 	 * Constructor.
@@ -27,10 +27,8 @@ private:
 	static GLuint vbo;
 	static GLint posAttrib;
 	static GLint colAttrib;
-	static GLuint shaderProgram;
+	static GLuint sm_shaderProgram;
     
-	static const GLchar * vertexSource;
-	static const GLchar * fragmentSource;
 	btRigidBody * rigidBody;
 
 	float width, height, depth;

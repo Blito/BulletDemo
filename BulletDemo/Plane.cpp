@@ -6,13 +6,18 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "ShaderMgr.h"
+
 GLint Plane::uniPVM = 0;
 GLuint Plane::vbo = 0;
 GLint Plane::posAttrib = 0;
 GLint Plane::colAttrib = 0;
-GLuint Plane::shaderProgram = 0;
+GLuint Plane::sm_shaderProgram = 0;
 
-bool Plane::load() {
+bool Plane::load(GLuint shaderProgram) {
+
+	sm_shaderProgram = shaderProgram;
+
 	// Create Vertex Array Object
     GLuint vao;
     glGenVertexArrays(1, &vao);
@@ -47,25 +52,7 @@ bool Plane::load() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 		sizeof(elements), elements, GL_STATIC_DRAW);*/
-
-    // Create and compile the vertex shader
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexSource, NULL);
-    glCompileShader(vertexShader);
-
-    // Create and compile the fragment shader
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-    glCompileShader(fragmentShader);
-
-    // Link the vertex and fragment shader into a shader program
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glBindFragDataLocation(shaderProgram, 0, "outColor");
-    glLinkProgram(shaderProgram);
-    //glUseProgram(shaderProgram);
-
+	
     // Specify the layout of the vertex data
 	// in vec3 position;
     posAttrib = glGetAttribLocation(shaderProgram, "position");
@@ -94,7 +81,7 @@ Plane::Plane(int y, unsigned width, unsigned depth) : y(y), width(width), depth(
 
 void Plane::render(glm::mat4 parentTransform) {
 	
-	//glUseProgram(shaderProgram);
+	ShaderMgr::GetSingleton().useShader(sm_shaderProgram);
 
 	glm::mat4 model;
 	model = glm::scale(glm::vec3(width, 1.0, depth)) 

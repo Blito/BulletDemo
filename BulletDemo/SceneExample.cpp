@@ -59,11 +59,12 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 
 	// Create floor
 	
-	GLuint shaderProgram = ShaderMgr::GetSingleton().createProgram("../vertex.shader", "../fragment.shader");
+	ShaderMgr * shaderMgr = new ShaderMgr();
+	GLuint shaderProgram = shaderMgr->createProgram("../BulletDemo/vertex.shader", "../BulletDemo/fragment.shader");
 
-	Box::load();
-	Plane::load();
-	Cloth::load();
+	Box::load(shaderProgram);
+	Plane::load(shaderProgram);
+	Cloth::load(shaderProgram);
 
 	RenderedObject * plane = new Plane(-2);
 	plane->addToWorld(world);

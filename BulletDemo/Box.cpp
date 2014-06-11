@@ -6,13 +6,18 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "ShaderMgr.h"
+
 GLint Box::uniPVM = 0;
 GLuint Box::vbo = 0;
 GLint Box::posAttrib = 0;
 GLint Box::colAttrib = 0;
-GLuint Box::shaderProgram = 0;
+GLuint Box::sm_shaderProgram = 0;
 
-bool Box::load() {
+bool Box::load(GLuint shaderProgram) {
+
+	sm_shaderProgram = shaderProgram;
+
 	// Create Vertex Array Object
     GLuint vao;
     glGenVertexArrays(1, &vao);
@@ -81,7 +86,7 @@ bool Box::load() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 		sizeof(elements), elements, GL_STATIC_DRAW);*/
-
+	
     // Specify the layout of the vertex data
 	// in vec2 position;
     posAttrib = glGetAttribLocation(shaderProgram, "position");
@@ -121,7 +126,7 @@ Box::~Box(void)
 
 void Box::render(glm::mat4 parentTransform) {
 	
-	//glUseProgram(shaderProgram);
+	ShaderMgr::GetSingleton().useShader(sm_shaderProgram);
 
 	float mat[16];
 	btTransform t;

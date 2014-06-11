@@ -12,7 +12,7 @@
 class Plane : public RenderedObject
 {
 public:
-	static bool load();
+	static bool load(GLuint shaderProgram);
 
 	/**
 	 * Constructor.
@@ -28,10 +28,7 @@ private:
 	static GLuint vbo;
 	static GLint posAttrib;
 	static GLint colAttrib;
-	static GLuint shaderProgram;
-
-	static const GLchar * vertexSource;
-	static const GLchar * fragmentSource;
+	static GLuint sm_shaderProgram;
 
 	btRigidBody * rigidBody; //< Bullet's internal representation of the plane
 	int y;
