@@ -86,9 +86,9 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	createBox(1, 1, 1,3,0,0,7);
 
 	// Create house
-	std::string filename = "../resources/teapot.obj";
+	/*std::string filename = "../resources/teapot.obj";
 	RenderedObject * house = new RigidObject(filename);
-	toRender.push_back(house);
+	toRender.push_back(house);*/
 }
 
 SceneExample::~SceneExample() {

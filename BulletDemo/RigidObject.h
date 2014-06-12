@@ -1,23 +1,58 @@
 #pragma once
 #include "renderedobject.h"
+#include <GL\glew.h>
 #include <string>
+#include <vector>
+#include <map>
 #include <assimp/scene.h>   // (AssImp) Output data structure
 
 class RigidObject :
 	public RenderedObject
 {
 public:
-	RigidObject(std::string& filename);
-	~RigidObject(void);
-	void render(glm::mat4 parentTransform);
-	bool addToWorld(btDynamicsWorld * world);
+	RigidObject (const std::string& filename);
+	~RigidObject (void);
+	void render (glm::mat4 parentTransform);
+	bool addToWorld (btDynamicsWorld * world);
 
 protected:
-	const aiScene * object;
-	float *vertexArray;
-	float *normalArray;
-	float *uvArray;
 
+	// Information to render each assimp node
+	struct MyMesh{
+
+		GLuint vao;
+		GLuint texIndex;
+		GLuint uniformBlockIndex;
+		int numFaces;
+	};
+
+	// This is for a shader uniform block
+	struct MyMaterial{
+
+		float diffuse[4];
+		float ambient[4];
+		float specular[4];
+		float emissive[4];
+		float shininess;
+		int texCount;
+	};
+
+	std::vector<struct MyMesh> myMeshes;
+	const aiScene * object;
 	int numVerts;
+	float scaleFactor;
+
+	// map image filenames to textureIds
+	// pointer to texture Array
+	std::map<std::string, GLuint> textureIdMap;	
+
+private:
+	bool import3DFromFile (const std::string & filename);
+	void getBoundingBox (const aiScene & object, aiVector3D* min, aiVector3D* max);
+	void getBoundingBoxForNode (const aiScene & object, const aiNode* nd, aiVector3D* min, aiVector3D* max);
+	void genVAOsAndUniformBuffer(const aiScene *sc);
+
+	void set_float4(float f[4], float a, float b, float c, float d);
+	void color4_to_float4(const aiColor4D *c, float f[4]);
 };
 
