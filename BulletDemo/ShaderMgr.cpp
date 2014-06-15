@@ -3,9 +3,18 @@
 #include <fstream>
 #include <iostream>
 
+const std::string ShaderMgr::c_verticesAttr = "position";
+const std::string ShaderMgr::c_colorAttr = "color";
+const std::string ShaderMgr::c_texCoordAttr = "texCoord";
+const std::string ShaderMgr::c_normalAttr = "normal";
 
 ShaderMgr::ShaderMgr(void) {
 	m_activeShader = 0;
+
+	m_attributesLocations[c_verticesAttr] = 0;
+	m_attributesLocations[c_colorAttr] = 1;
+	m_attributesLocations[c_texCoordAttr] = 2;
+	m_attributesLocations[c_normalAttr] = 3;
 }
 
 
@@ -32,7 +41,7 @@ GLuint ShaderMgr::createProgram(std::string vShaderPath, std::string fShaderPath
 	glShaderSource(vertexShader, 1, (const char **)&vertexSource, NULL);
     glCompileShader(vertexShader);
 	debugGL("compile vertex shader");
-
+	
     // Create and compile the fragment shader
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, (const char **)&fragmentSource, NULL);
@@ -43,7 +52,13 @@ GLuint ShaderMgr::createProgram(std::string vShaderPath, std::string fShaderPath
     GLuint shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
+
+	// Bind the shader attributes
+	for (auto it = m_attributesLocations.begin(); it != m_attributesLocations.end(); it++) {
+		glBindAttribLocation(shaderProgram, it->second, it->first.c_str());
+	}
     glBindFragDataLocation(shaderProgram, 0, "outColor");
+
     glLinkProgram(shaderProgram);
 
 	delete vertexSource, fragmentSource;
@@ -75,6 +90,12 @@ void ShaderMgr::useShader(GLuint shaderProgram) {
 	}
 }
 
+GLuint ShaderMgr::getAttribLocation(std::string attribute) {
+	return m_attributesLocations.find(attribute) != m_attributesLocations.end() ?
+				m_attributesLocations[attribute] :
+				-1;
+}
+
 const char * ShaderMgr::readFile(const char * path) {
 	std::ifstream t;
 	int length;
@@ -88,6 +109,7 @@ const char * ShaderMgr::readFile(const char * path) {
 	length = t.tellg();        
 	t.seekg(0, std::ios::beg); 
 	char * buffer = new char[length+1]; 
+	memset(buffer,0,sizeof(char)*(length+1));
 	t.read(buffer, length);    
 	t.close();           
 

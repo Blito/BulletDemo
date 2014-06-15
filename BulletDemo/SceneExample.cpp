@@ -34,14 +34,14 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 
 
 	// Init fonts
-	if (TTF_Init() != 0){
+	if (TTF_Init() != 0) {
 		//logSDLError(std::cout, "TTF_Init");
 		return;
 	}
 
 	//Open the font
 	font = TTF_OpenFont(FONT_FILE, 12);
-	if (font == nullptr){
+	if (font == nullptr) {
 		//logSDLError(std::cout, "TTF_OpenFont");
 		return;
 	}

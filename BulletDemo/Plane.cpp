@@ -18,6 +18,8 @@ bool Plane::load(GLuint shaderProgram) {
 
 	sm_shaderProgram = shaderProgram;
 
+	ShaderMgr * shaderMgr = ShaderMgr::GetSingletonPtr();
+
 	// Create Vertex Array Object
     GLuint vao;
     glGenVertexArrays(1, &vao);
@@ -43,24 +45,15 @@ bool Plane::load(GLuint shaderProgram) {
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	/*GLuint elements[] = {
-		0, 1, 2,
-		2, 3, 0
-	};
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-		sizeof(elements), elements, GL_STATIC_DRAW);*/
 	
     // Specify the layout of the vertex data
 	// in vec3 position;
-    posAttrib = glGetAttribLocation(shaderProgram, "position");
+    posAttrib = shaderMgr->getAttribLocation(ShaderMgr::c_verticesAttr);
     glEnableVertexAttribArray(posAttrib);
     glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
 
 	// in vec3 color;
-	colAttrib = glGetAttribLocation(shaderProgram, "color");
+	colAttrib = shaderMgr->getAttribLocation(ShaderMgr::c_colorAttr);
 	glEnableVertexAttribArray(colAttrib);
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 

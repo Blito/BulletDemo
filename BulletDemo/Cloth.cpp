@@ -17,6 +17,7 @@ GLuint Cloth::sm_shaderProgram = 0;
 bool Cloth::load(GLuint shaderProgram) {
 
 	sm_shaderProgram = shaderProgram;
+	ShaderMgr * shaderMgr = ShaderMgr::GetSingletonPtr();
 
 	// Create Vertex Array Object
     GLuint vao;
@@ -25,18 +26,18 @@ bool Cloth::load(GLuint shaderProgram) {
 
 	// Create a Vertex Buffer Object and copy the vertex data to it
     glGenBuffers(1, &vbo);
-
+	
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     //glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);*/  
 
     // Specify the layout of the vertex data
 	// in vec3 position;
-    posAttrib = glGetAttribLocation(shaderProgram, "position");
+    posAttrib = shaderMgr->getAttribLocation(ShaderMgr::c_verticesAttr);
     glEnableVertexAttribArray(posAttrib);
     glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
 
 	// in vec3 color;
-	colAttrib = glGetAttribLocation(shaderProgram, "color");
+	colAttrib = shaderMgr->getAttribLocation(ShaderMgr::c_colorAttr);
 	glEnableVertexAttribArray(colAttrib);
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
