@@ -62,6 +62,7 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	ShaderMgr * shaderMgr = new ShaderMgr();
 	GLuint shaderProgram = shaderMgr->createProgram("../BulletDemo/vertex.shader", "../BulletDemo/fragment.shader");
 
+	RigidObject::load();
 	Box::load(shaderProgram);
 	Plane::load(shaderProgram);
 	Cloth::load(shaderProgram);

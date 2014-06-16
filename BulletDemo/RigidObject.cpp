@@ -3,6 +3,16 @@
 #include <assimp/postprocess.h>     // Post processing flags
 #include <fstream>
 
+#include "ShaderMgr.h"
+
+GLuint RigidObject::sm_shaderProgram = 0;
+
+void RigidObject::load() {
+	ShaderMgr shaderMgr = ShaderMgr::GetSingleton();
+
+	sm_shaderProgram = shaderMgr.createProgram("../BulletDemo/dirlightdiffambpix.vert", "../BulletDemo/dirlightdiffambpix.frag");
+}
+
 RigidObject::RigidObject(const std::string& filename)
 {
 
@@ -20,6 +30,10 @@ RigidObject::~RigidObject(void)
 }
 
 void RigidObject::render(glm::mat4 parentTransform) {
+
+	glUseProgram(sm_shaderProgram);
+
+
 	
 }
 
@@ -106,8 +120,12 @@ void RigidObject::getBoundingBoxForNode (const aiScene & object, const aiNode* n
 
 void RigidObject::genVAOsAndUniformBuffer(const aiScene *sc) {
 
+	ShaderMgr shaderMgr = ShaderMgr::GetSingleton();
+
 	// Vertex Attribute Locations
-	GLuint vertexLoc=0, normalLoc=1, texCoordLoc=2;
+	GLuint vertexLoc = shaderMgr.getAttribLocation(ShaderMgr::c_verticesAttr);
+	GLuint normalLoc = shaderMgr.getAttribLocation(ShaderMgr::c_normalAttr);
+	GLuint texCoordLoc = shaderMgr.getAttribLocation(ShaderMgr::c_texCoordAttr);
 
 	// Uniform Bindings Points
 	GLuint matricesUniLoc = 1, materialUniLoc = 2;

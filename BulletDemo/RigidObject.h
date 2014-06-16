@@ -10,12 +10,15 @@ class RigidObject :
 	public RenderedObject
 {
 public:
+	static void load();
 	RigidObject (const std::string& filename);
 	~RigidObject (void);
 	void render (glm::mat4 parentTransform);
 	bool addToWorld (btDynamicsWorld * world);
 
 protected:
+
+	static GLuint sm_shaderProgram;
 
 	// Information to render each assimp node
 	struct MyMesh{
@@ -51,6 +54,7 @@ private:
 	void getBoundingBox (const aiScene & object, aiVector3D* min, aiVector3D* max);
 	void getBoundingBoxForNode (const aiScene & object, const aiNode* nd, aiVector3D* min, aiVector3D* max);
 	void genVAOsAndUniformBuffer(const aiScene *sc);
+	void recursiveRender(const aiScene *sc, const aiNode* nd);
 
 	void set_float4(float f[4], float a, float b, float c, float d);
 	void color4_to_float4(const aiColor4D *c, float f[4]);
