@@ -267,3 +267,39 @@ void RigidObject::color4_to_float4(const aiColor4D *c, float f[4])
 	f[2] = c->b;
 	f[3] = c->a;
 }
+
+void RigidObject::recursiveRender(const aiScene *sc, const aiNode* nd) {
+
+	// Get node transformation matrix
+	aiMatrix4x4 m = nd->mTransformation;
+	// OpenGL matrices are column major
+	m.Transpose();
+
+	// save model matrix and apply node transformation
+	pushMatrix();
+
+	float aux[16];
+	memcpy(aux,&m,sizeof(float) * 16);
+	modelMatrix *= aux;
+	setModelMatrix();
+
+
+	// draw all meshes assigned to this node
+	for (unsigned int n=0; n < nd->mNumMeshes; ++n){
+		// bind material uniform
+		glBindBufferRange(GL_UNIFORM_BUFFER, materialUniLoc, myMeshes[nd->mMeshes[n]].uniformBlockIndex, 0, sizeof(struct MyMaterial));	
+		// bind texture
+		glBindTexture(GL_TEXTURE_2D, myMeshes[nd->mMeshes[n]].texIndex);
+		// bind VAO
+		glBindVertexArray(myMeshes[nd->mMeshes[n]].vao);
+		// draw
+		glDrawElements(GL_TRIANGLES,myMeshes[nd->mMeshes[n]].numFaces*3,GL_UNSIGNED_INT,0);
+
+	}
+
+	// draw all children
+	for (unsigned int n=0; n < nd->mNumChildren; ++n){
+		recursiveRender(sc, nd->mChildren[n]);
+	}
+	popMatrix();
+}

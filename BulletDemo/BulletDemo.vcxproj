@@ -73,6 +73,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OpenGLWindow.cpp" />
     <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="RenderMgr.cpp" />
     <ClCompile Include="RigidObject.cpp" />
     <ClCompile Include="SceneExample.cpp" />
     <ClCompile Include="ShaderMgr.cpp" />
@@ -83,6 +84,7 @@
     <ClInclude Include="OpenGLWindow.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="RenderedObject.h" />
+    <ClInclude Include="RenderMgr.h" />
     <ClInclude Include="RigidObject.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneExample.h" />
@@ -90,6 +92,8 @@
     <ClInclude Include="Singleton.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="dirlightdiffambpix.frag" />
+    <None Include="dirlightdiffambpix.vert" />
     <None Include="fragment.shader" />
     <None Include="vertex.shader" />
   </ItemGroup>

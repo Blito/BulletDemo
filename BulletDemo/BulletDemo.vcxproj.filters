@@ -42,6 +42,9 @@
     <ClCompile Include="ShaderMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RenderMgr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OpenGLWindow.h">
@@ -74,12 +77,21 @@
     <ClInclude Include="ShaderMgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RenderMgr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vertex.shader">
       <Filter>Shaders</Filter>
     </None>
     <None Include="fragment.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="dirlightdiffambpix.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="dirlightdiffambpix.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

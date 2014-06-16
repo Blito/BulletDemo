@@ -104,8 +104,6 @@ void OpenGLWindow::Display_InitGL()
 	/* Really Nice Perspective Calculations */
 	glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
 
-	glEnable(GL_MULTISAMPLE);
-
 }
 
 /* function to reset our viewport after a window resize */
