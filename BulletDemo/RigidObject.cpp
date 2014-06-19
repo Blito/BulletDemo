@@ -3,14 +3,18 @@
 #include <assimp/postprocess.h>     // Post processing flags
 #include <fstream>
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "ShaderMgr.h"
 
 GLuint RigidObject::sm_shaderProgram = 0;
+GLint RigidObject::uniPVM = 0;
+GLint RigidObject::uniModel = 0;
 
 void RigidObject::load() {
-	ShaderMgr shaderMgr = ShaderMgr::GetSingleton();
+	ShaderMgr * shaderMgr = ShaderMgr::GetSingletonPtr();
 
-	sm_shaderProgram = shaderMgr.createProgram("../BulletDemo/dirlightdiffambpix.vert", "../BulletDemo/dirlightdiffambpix.frag");
+	sm_shaderProgram = shaderMgr->createProgram("../BulletDemo/dirlightdiffambpix.vert", "../BulletDemo/dirlightdiffambpix.frag");
 }
 
 RigidObject::RigidObject(const std::string& filename)
@@ -23,6 +27,9 @@ RigidObject::RigidObject(const std::string& filename)
 	}
 
 	genVAOsAndUniformBuffer(object);
+
+	uniPVM = glGetUniformLocation(sm_shaderProgram, "pvm");
+	uniModel = glGetUniformLocation(sm_shaderProgram, "model");
 
 }
 
@@ -121,12 +128,12 @@ void RigidObject::getBoundingBoxForNode (const aiScene & object, const aiNode* n
 
 void RigidObject::genVAOsAndUniformBuffer(const aiScene *sc) {
 
-	ShaderMgr shaderMgr = ShaderMgr::GetSingleton();
+	ShaderMgr * shaderMgr = ShaderMgr::GetSingletonPtr();
 
 	// Vertex Attribute Locations
-	GLuint vertexLoc = shaderMgr.getAttribLocation(ShaderMgr::c_verticesAttr);
-	GLuint normalLoc = shaderMgr.getAttribLocation(ShaderMgr::c_normalAttr);
-	GLuint texCoordLoc = shaderMgr.getAttribLocation(ShaderMgr::c_texCoordAttr);
+	GLuint vertexLoc = shaderMgr->getAttribLocation(ShaderMgr::c_verticesAttr);
+	GLuint normalLoc = shaderMgr->getAttribLocation(ShaderMgr::c_normalAttr);
+	GLuint texCoordLoc = shaderMgr->getAttribLocation(ShaderMgr::c_texCoordAttr);
 
 	// Uniform Bindings Points
 	GLuint matricesUniLoc = 1, materialUniLoc = 2;
@@ -277,15 +284,12 @@ void RigidObject::recursiveRender(const aiScene *sc, const aiNode* nd) {
 	m.Transpose();
 
 	// save model matrix and apply node transformation
-	glm::mat4 mat;
-	copyAiMatrixToGLM(&m, mat);
-	m_renderMgr->pushMatrix(mat);
+	glm::mat4 model;
+	copyAiMatrixToGLM(&m, model);
+	m_renderMgr->pushMatrix(model);
+		
+	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
-/*	glBindBuffer(GL_UNIFORM_BUFFER,matricesUniBuffer);
-	glBufferSubData(GL_UNIFORM_BUFFER, 
-		               ModelMatrixOffset, MatrixSize, modelMatrix);
-	glBindBuffer(GL_UNIFORM_BUFFER,0);
-	*/
 	// draw all meshes assigned to this node
 	for (unsigned int n=0; n < nd->mNumMeshes; ++n){
 		// bind material uniform
