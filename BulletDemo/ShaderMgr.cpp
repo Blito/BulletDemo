@@ -2,11 +2,19 @@
 
 #include <fstream>
 #include <iostream>
+#include <glm\glm.hpp>
 
 const std::string ShaderMgr::c_verticesAttr = "position";
 const std::string ShaderMgr::c_colorAttr = "color";
 const std::string ShaderMgr::c_texCoordAttr = "texCoord";
 const std::string ShaderMgr::c_normalAttr = "normal";
+
+const std::string ShaderMgr::c_uniPVM = "pvm";
+const std::string ShaderMgr::c_uniProj = "proj";
+const std::string ShaderMgr::c_uniView = "view";
+const std::string ShaderMgr::c_uniModel = "model";
+const std::string ShaderMgr::c_uniMatrices = "GlobalMatrices";
+
 
 ShaderMgr::ShaderMgr(void) {
 	m_activeShader = 0;
@@ -15,6 +23,14 @@ ShaderMgr::ShaderMgr(void) {
 	m_attributesLocations[c_colorAttr] = 1;
 	m_attributesLocations[c_texCoordAttr] = 2;
 	m_attributesLocations[c_normalAttr] = 3;
+	
+	m_globalMatricesLoc = 1;
+
+	glGenBuffers(1, &m_globalMatricesUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_globalMatricesUBO);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, NULL, GL_STREAM_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, m_globalMatricesLoc, m_globalMatricesUBO, 0, sizeof(glm::mat4) * 2);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 
@@ -75,6 +91,11 @@ GLuint ShaderMgr::createProgram(std::string vShaderPath, std::string fShaderPath
 
 	debugGL("link program");
 
+	GLuint matricesIndex = glGetUniformBlockIndex(shaderProgram,c_uniMatrices.c_str());
+	glUniformBlockBinding(shaderProgram, matricesIndex, m_globalMatricesLoc);
+
+	debugGL("uni block binding");
+
 	return shaderProgram;
 }
 
@@ -124,4 +145,8 @@ void ShaderMgr::debugGL(const char * function) {
 		std::cerr << err << " ";        
 	}
 	std::cerr << std::endl;
+}
+
+const GLuint ShaderMgr::getUBO() const {
+	return m_globalMatricesUBO;
 }

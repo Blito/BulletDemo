@@ -21,7 +21,7 @@ public:
 	 * @param depth The depth of the plane.
 	 */
 	Plane(int y = 0, unsigned width = 100, unsigned depth = 100);
-	void render(glm::mat4 parentTransform);
+	void render(const glm::mat4 & proj, const glm::mat4 & view, const glm::mat4 & preMult);
 	bool addToWorld(btDynamicsWorld * world);
 
 private:
@@ -35,7 +35,7 @@ private:
 	float width, depth; //< For rendering, not physics.
 
 	// Fragment shader variables
-	static GLint uniPVM;
+	static GLint uniPVM, uniModel;
 
 	glm::mat4 model; //< local transformation matrix
 };

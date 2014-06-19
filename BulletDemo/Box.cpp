@@ -9,6 +9,7 @@
 #include "ShaderMgr.h"
 
 GLint Box::uniPVM = 0;
+GLint Box::uniModel = 0;
 GLuint Box::vbo = 0;
 GLint Box::posAttrib = 0;
 GLint Box::colAttrib = 0;
@@ -101,6 +102,7 @@ bool Box::load(GLuint shaderProgram) {
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
 	uniPVM = glGetUniformLocation(shaderProgram, "pvm");
+	uniModel = glGetUniformLocation(shaderProgram, "model");
 	
 	return true;
 }
@@ -126,18 +128,18 @@ Box::~Box(void)
 {
 }
 
-void Box::render(glm::mat4 parentTransform) {
+void Box::render(const glm::mat4 & proj, const glm::mat4 & view, const glm::mat4 & preMult) {
 	
 	ShaderMgr::GetSingleton().useShader(sm_shaderProgram);
-
+		
 	float mat[16];
 	btTransform t;
 	rigidBody->getMotionState()->getWorldTransform(t);
 	t.getOpenGLMatrix(mat);
 
-	glm::mat4 model = glm::make_mat4(mat);
+	glm::mat4 model = glm::make_mat4(mat) * glm::scale(glm::vec3(width, height, depth));
 
-	glm::mat4 pvm = parentTransform * model * glm::scale(glm::vec3(width, height, depth));
+	glm::mat4 pvm = preMult * model;
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
@@ -145,6 +147,7 @@ void Box::render(glm::mat4 parentTransform) {
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
 	glUniformMatrix4fv(uniPVM, 1, GL_FALSE, glm::value_ptr(pvm));
+	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 

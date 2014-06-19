@@ -6,6 +6,8 @@
 #include <map>
 #include <assimp/scene.h>   // (AssImp) Output data structure
 
+#include "RenderMgr.h"
+
 class RigidObject :
 	public RenderedObject
 {
@@ -13,12 +15,14 @@ public:
 	static void load();
 	RigidObject (const std::string& filename);
 	~RigidObject (void);
-	void render (glm::mat4 parentTransform);
+	void render (const glm::mat4 & proj, const glm::mat4 & view, const glm::mat4 & preMult);
 	bool addToWorld (btDynamicsWorld * world);
 
 protected:
 
 	static GLuint sm_shaderProgram;
+
+	RenderMgr * m_renderMgr;
 
 	// Information to render each assimp node
 	struct MyMesh{
@@ -56,7 +60,9 @@ private:
 	void genVAOsAndUniformBuffer(const aiScene *sc);
 	void recursiveRender(const aiScene *sc, const aiNode* nd);
 
+	// TODO: move to utils
 	void set_float4(float f[4], float a, float b, float c, float d);
 	void color4_to_float4(const aiColor4D *c, float f[4]);
+	inline void copyAiMatrixToGLM(const aiMatrix4x4 *from, glm::mat4 &to);
 };
 

@@ -8,7 +8,6 @@
 #include "Plane.h"
 #include "Cloth.h"
 #include "RigidObject.h"
-#include "ShaderMgr.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -32,6 +31,10 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	ly = sin(angleV);
 	lz = -cos(angleH);
 
+	// Managers init
+	// TODO: GET THIS OUT OF THE SCENEEXAMPLE!1!!
+	renderMgr = new RenderMgr();
+	shaderMgr = new ShaderMgr();
 
 	// Init fonts
 	if (TTF_Init() != 0) {
@@ -57,12 +60,16 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 
 	proj = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 200.0f);
 
-	// Create floor
-	
-	ShaderMgr * shaderMgr = new ShaderMgr();
-	GLuint shaderProgram = shaderMgr->createProgram("../BulletDemo/vertex.shader", "../BulletDemo/fragment.shader");
 
-	RigidObject::load();
+	shaderMgr->debugGL("glBufferSubData");
+
+	GLuint shaderProgram = shaderMgr->createProgram("../BulletDemo/vertex.shader", "../BulletDemo/fragment.shader");
+	
+	glBindBuffer(GL_UNIFORM_BUFFER, shaderMgr->getUBO());
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(proj));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	//RigidObject::load();
 	Box::load(shaderProgram);
 	Plane::load(shaderProgram);
 	Cloth::load(shaderProgram);
@@ -198,7 +205,6 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
 }
 
 void SceneExample::render() {
-	//glLoadIdentity();
 
 	view = glm::lookAt(
 		glm::vec3(xCam, yCam, zCam),
@@ -207,9 +213,13 @@ void SceneExample::render() {
 		);
 
 	glm::mat4 parentMatrix = proj * view;
+
+	glBindBuffer(GL_UNIFORM_BUFFER, shaderMgr->getUBO());
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	
 	for (int i = 0; i < toRender.size(); i++) {
-		toRender[i]->render(parentMatrix);
+		toRender[i]->render(proj, view, parentMatrix);
 	}	
 
 	glFlush();

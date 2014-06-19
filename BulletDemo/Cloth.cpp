@@ -9,6 +9,7 @@
 #include "ShaderMgr.h"
 
 GLint Cloth::uniPVM = 0;
+GLint Cloth::uniModel = 0;
 GLuint Cloth::vbo = 0;
 GLint Cloth::posAttrib = 0;
 GLint Cloth::colAttrib = 0;
@@ -42,6 +43,7 @@ bool Cloth::load(GLuint shaderProgram) {
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
 	uniPVM = glGetUniformLocation(shaderProgram, "pvm");
+	uniModel = glGetUniformLocation(shaderProgram, "model");
 	
 	return true;
 }
@@ -66,7 +68,7 @@ Cloth::~Cloth(void)
 {
 }
 
-void Cloth::render(glm::mat4 parentTransform) {
+void Cloth::render(const glm::mat4 & proj, const glm::mat4 & view, const glm::mat4 & preMult) {
 	
 	ShaderMgr::GetSingleton().useShader(sm_shaderProgram);
 
@@ -89,7 +91,7 @@ void Cloth::render(glm::mat4 parentTransform) {
 		}
 	}
 
-	glm::mat4 pvm = parentTransform;
+	glm::mat4 pvm = preMult;
 	
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*vertCount, &(*vertices), GL_DYNAMIC_DRAW);
@@ -98,6 +100,7 @@ void Cloth::render(glm::mat4 parentTransform) {
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
 	glUniformMatrix4fv(uniPVM, 1, GL_FALSE, glm::value_ptr(pvm));
+	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	glDrawArrays(GL_TRIANGLES, 0, vertCount);
 

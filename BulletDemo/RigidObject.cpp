@@ -16,6 +16,8 @@ void RigidObject::load() {
 RigidObject::RigidObject(const std::string& filename)
 {
 
+	m_renderMgr = RenderMgr::GetSingletonPtr();
+
 	if (!import3DFromFile(filename)) {
 		return;
 	}
@@ -29,7 +31,7 @@ RigidObject::~RigidObject(void)
 {
 }
 
-void RigidObject::render(glm::mat4 parentTransform) {
+void RigidObject::render(const glm::mat4 & proj, const glm::mat4 & view, const glm::mat4 & preMult) {
 
 	glUseProgram(sm_shaderProgram);
 
@@ -66,7 +68,6 @@ bool RigidObject::import3DFromFile( const std::string& filename)
 
 	// Now we can access the file's contents.
 	printf("Import of object %s succeeded.",filename.c_str());
-
 	
 	aiVector3D object_min, object_max, object_center;
 	getBoundingBox(*object,&object_min, &object_max);
@@ -276,18 +277,19 @@ void RigidObject::recursiveRender(const aiScene *sc, const aiNode* nd) {
 	m.Transpose();
 
 	// save model matrix and apply node transformation
-	pushMatrix();
+	glm::mat4 mat;
+	copyAiMatrixToGLM(&m, mat);
+	m_renderMgr->pushMatrix(mat);
 
-	float aux[16];
-	memcpy(aux,&m,sizeof(float) * 16);
-	modelMatrix *= aux;
-	setModelMatrix();
-
-
+/*	glBindBuffer(GL_UNIFORM_BUFFER,matricesUniBuffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 
+		               ModelMatrixOffset, MatrixSize, modelMatrix);
+	glBindBuffer(GL_UNIFORM_BUFFER,0);
+	*/
 	// draw all meshes assigned to this node
 	for (unsigned int n=0; n < nd->mNumMeshes; ++n){
 		// bind material uniform
-		glBindBufferRange(GL_UNIFORM_BUFFER, materialUniLoc, myMeshes[nd->mMeshes[n]].uniformBlockIndex, 0, sizeof(struct MyMaterial));	
+		//glBindBufferRange(GL_UNIFORM_BUFFER, materialUniLoc, myMeshes[nd->mMeshes[n]].uniformBlockIndex, 0, sizeof(struct MyMaterial));	
 		// bind texture
 		glBindTexture(GL_TEXTURE_2D, myMeshes[nd->mMeshes[n]].texIndex);
 		// bind VAO
@@ -301,5 +303,18 @@ void RigidObject::recursiveRender(const aiScene *sc, const aiNode* nd) {
 	for (unsigned int n=0; n < nd->mNumChildren; ++n){
 		recursiveRender(sc, nd->mChildren[n]);
 	}
-	popMatrix();
+
+	m_renderMgr->popMatrix();
+}
+
+inline void RigidObject::copyAiMatrixToGLM(const aiMatrix4x4 *from, glm::mat4 &to)
+{
+        to[0][0] = (GLfloat)from->a1; to[1][0] = (GLfloat)from->a2;
+        to[2][0] = (GLfloat)from->a3; to[3][0] = (GLfloat)from->a4;
+        to[0][1] = (GLfloat)from->b1; to[1][1] = (GLfloat)from->b2;
+        to[2][1] = (GLfloat)from->b3; to[3][1] = (GLfloat)from->b4;
+        to[0][2] = (GLfloat)from->c1; to[1][2] = (GLfloat)from->c2;
+        to[2][2] = (GLfloat)from->c3; to[3][2] = (GLfloat)from->c4;
+        to[0][3] = (GLfloat)from->d1; to[1][3] = (GLfloat)from->d2;
+        to[2][3] = (GLfloat)from->d3; to[3][3] = (GLfloat)from->d4;
 }

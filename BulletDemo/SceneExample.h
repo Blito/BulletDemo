@@ -17,6 +17,9 @@
 #include <bullet\BulletDynamics\Dynamics\btRigidBody.h>
 #include <glm/glm.hpp>
 
+#include "RenderMgr.h"
+#include "ShaderMgr.h"
+
 /**
  * Example scene.
  * As of now consists of a small number of cubes in a large plane, and a cloth hanging above it.
@@ -52,6 +55,10 @@ private:
 	Box * createBox(float width, float height, float depth, float x = 0, float y = 0, float z = 0, float mass = 0);
 	void renderPlane(float y = 0);
 	void createText(const std::string &message, SDL_Color color);
+
+	// Managers
+	RenderMgr * renderMgr;	
+	ShaderMgr * shaderMgr;
 
 	// Camera
 	float angleH, angleV;
