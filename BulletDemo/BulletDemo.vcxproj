@@ -92,10 +92,10 @@
     <ClInclude Include="Singleton.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="dirlightdiffambpix.frag" />
-    <None Include="dirlightdiffambpix.vert" />
-    <None Include="fragment.shader" />
-    <None Include="vertex.shader" />
+    <None Include="shaders\dirlightdiffambpix.frag" />
+    <None Include="shaders\dirlightdiffambpix.vert" />
+    <None Include="shaders\fragment.shader" />
+    <None Include="shaders\vertex.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>   // (AssImp) Output data structure
 
 #include "RenderMgr.h"
@@ -55,13 +56,15 @@ protected:
 
 private:
 	bool import3DFromFile (const std::string & filename);
-	void getBoundingBox (const aiScene & object, aiVector3D* min, aiVector3D* max);
-	void getBoundingBoxForNode (const aiScene & object, const aiNode* nd, aiVector3D* min, aiVector3D* max);
-	void genVAOsAndUniformBuffer(const aiScene *sc);
-	void recursiveRender(const aiScene *sc, const aiNode* nd);
+	void getBoundingBox (aiVector3D* min, aiVector3D* max);
+	void getBoundingBoxForNode (const aiNode* nd, aiVector3D* min, aiVector3D* max);
+	void genVAOsAndUniformBuffer();
+	void recursiveRender(const aiNode* nd, const glm::mat4 & proj, const glm::mat4 & view, const glm::mat4 & preMult);
 
 	// Fragment shader variables
 	static GLint uniPVM, uniModel;
+
+	Assimp::Importer importer;
 
 	// TODO: move to utils
 	void set_float4(float f[4], float a, float b, float c, float d);

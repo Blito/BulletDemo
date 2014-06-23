@@ -63,13 +63,13 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 
 	shaderMgr->debugGL("glBufferSubData");
 
-	GLuint shaderProgram = shaderMgr->createProgram("../BulletDemo/vertex.shader", "../BulletDemo/fragment.shader");
+	GLuint shaderProgram = shaderMgr->createProgram("../BulletDemo/shaders/vertex.shader", "../BulletDemo/shaders/fragment.shader");
 	
 	glBindBuffer(GL_UNIFORM_BUFFER, shaderMgr->getUBO());
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(proj));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	//RigidObject::load();
+	RigidObject::load();
 	Box::load(shaderProgram);
 	Plane::load(shaderProgram);
 	Cloth::load(shaderProgram);
@@ -96,7 +96,7 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 	// Create house
 	std::string filename = "../resources/teapot.obj";
 	RenderedObject * house = new RigidObject(filename);
-	toRender.push_back(house);
+	//toRender.push_back(house);
 }
 
 SceneExample::~SceneExample() {

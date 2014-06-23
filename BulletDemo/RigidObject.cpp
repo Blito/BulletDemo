@@ -1,5 +1,4 @@
 #include "RigidObject.h"
-#include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/postprocess.h>     // Post processing flags
 #include <fstream>
 
@@ -14,7 +13,8 @@ GLint RigidObject::uniModel = 0;
 void RigidObject::load() {
 	ShaderMgr * shaderMgr = ShaderMgr::GetSingletonPtr();
 
-	sm_shaderProgram = shaderMgr->createProgram("../BulletDemo/dirlightdiffambpix.vert", "../BulletDemo/dirlightdiffambpix.frag");
+	sm_shaderProgram = shaderMgr->createProgram("../BulletDemo/shaders/dirlightdiffambpix.vert", "../BulletDemo/shaders/fragment.shader");
+	//sm_shaderProgram = shaderMgr->createProgram("../vertex.shader", "../fragment.shader");
 }
 
 RigidObject::RigidObject(const std::string& filename)
@@ -26,7 +26,7 @@ RigidObject::RigidObject(const std::string& filename)
 		return;
 	}
 
-	genVAOsAndUniformBuffer(object);
+	genVAOsAndUniformBuffer();
 
 	uniPVM = glGetUniformLocation(sm_shaderProgram, "pvm");
 	uniModel = glGetUniformLocation(sm_shaderProgram, "model");
@@ -42,7 +42,7 @@ void RigidObject::render(const glm::mat4 & proj, const glm::mat4 & view, const g
 
 	glUseProgram(sm_shaderProgram);
 
-
+	recursiveRender(object->mRootNode, proj, view, preMult);
 	
 }
 
@@ -52,7 +52,6 @@ bool RigidObject::addToWorld(btDynamicsWorld * world) {
 
 bool RigidObject::import3DFromFile( const std::string& filename)
 {
-	Assimp::Importer importer;
 
 	//check if file exists
 	std::ifstream fin(filename.c_str());
@@ -77,7 +76,7 @@ bool RigidObject::import3DFromFile( const std::string& filename)
 	printf("Import of object %s succeeded.",filename.c_str());
 	
 	aiVector3D object_min, object_max, object_center;
-	getBoundingBox(*object,&object_min, &object_max);
+	getBoundingBox(&object_min, &object_max);
 	float tmp;
 	tmp = object_max.x-object_min.x;
 	tmp = object_max.y - object_min.y > tmp?object_max.y - object_min.y:tmp;
@@ -88,17 +87,17 @@ bool RigidObject::import3DFromFile( const std::string& filename)
 	return true;
 }
 
-void RigidObject::getBoundingBox (const aiScene & object, aiVector3D* min, aiVector3D* max)
+void RigidObject::getBoundingBox (aiVector3D* min, aiVector3D* max)
 {
 	min->x = min->y = min->z =  1e10f;
 	max->x = max->y = max->z = -1e10f;
-	getBoundingBoxForNode(object,object.mRootNode,min,max);
+	getBoundingBoxForNode(object->mRootNode,min,max);
 }
 
 #define aisgl_min(x,y) (x<y?x:y)
 #define aisgl_max(x,y) (y>x?y:x)
 
-void RigidObject::getBoundingBoxForNode (const aiScene & object, const aiNode* nd, 
+void RigidObject::getBoundingBoxForNode (const aiNode* nd, 
 	aiVector3D* min, 
 	aiVector3D* max)
 {
@@ -106,7 +105,7 @@ void RigidObject::getBoundingBoxForNode (const aiScene & object, const aiNode* n
 	unsigned int n = 0, t;
 
 	for (; n < nd->mNumMeshes; ++n) {
-		const aiMesh* mesh = object.mMeshes[nd->mMeshes[n]];
+		const aiMesh* mesh = object->mMeshes[nd->mMeshes[n]];
 		for (t = 0; t < mesh->mNumVertices; ++t) {
 
 			aiVector3D tmp = mesh->mVertices[t];
@@ -122,11 +121,11 @@ void RigidObject::getBoundingBoxForNode (const aiScene & object, const aiNode* n
 	}
 
 	for (n = 0; n < nd->mNumChildren; ++n) {
-		getBoundingBoxForNode(object,nd->mChildren[n],min,max);
+		getBoundingBoxForNode(nd->mChildren[n],min,max);
 	}
 }
 
-void RigidObject::genVAOsAndUniformBuffer(const aiScene *sc) {
+void RigidObject::genVAOsAndUniformBuffer() {
 
 	ShaderMgr * shaderMgr = ShaderMgr::GetSingletonPtr();
 
@@ -143,9 +142,9 @@ void RigidObject::genVAOsAndUniformBuffer(const aiScene *sc) {
 	GLuint buffer;
 	
 	// For each mesh
-	for (unsigned int n = 0; n < sc->mNumMeshes; ++n)
+	for (unsigned int n = 0; n < object->mNumMeshes; ++n)
 	{
-		const aiMesh* mesh = sc->mMeshes[n];
+		const aiMesh* mesh = object->mMeshes[n];
 
 		// create array with faces
 		// have to convert from Assimp format to array
@@ -159,7 +158,7 @@ void RigidObject::genVAOsAndUniformBuffer(const aiScene *sc) {
 			memcpy(&faceArray[faceIndex], face->mIndices,3 * sizeof(unsigned int));
 			faceIndex += 3;
 		}
-		aMesh.numFaces = sc->mMeshes[n]->mNumFaces;
+		aMesh.numFaces = object->mMeshes[n]->mNumFaces;
 
 		// generate Vertex Array for mesh
 		glGenVertexArrays(1,&(aMesh.vao));
@@ -205,12 +204,12 @@ void RigidObject::genVAOsAndUniformBuffer(const aiScene *sc) {
 		}
 
 		// unbind buffers
-		glBindVertexArray(0);
+		/*glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER,0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);*/
 	
 		// create material uniform buffer
-		aiMaterial *mtl = sc->mMaterials[mesh->mMaterialIndex];
+		aiMaterial *mtl = object->mMaterials[mesh->mMaterialIndex];
 			
 		aiString texPath;	//contains filename of texture
 		if(AI_SUCCESS == mtl->GetTexture(aiTextureType_DIFFUSE, 0, &texPath)){
@@ -221,7 +220,7 @@ void RigidObject::genVAOsAndUniformBuffer(const aiScene *sc) {
 			}
 		else
 			aMat.texCount = 0;
-
+		/*
 		float c[4];
 		set_float4(c, 0.8f, 0.8f, 0.8f, 1.0f);
 		aiColor4D diffuse;
@@ -251,11 +250,11 @@ void RigidObject::genVAOsAndUniformBuffer(const aiScene *sc) {
 		unsigned int max;
 		aiGetMaterialFloatArray(mtl, AI_MATKEY_SHININESS, &shininess, &max);
 		aMat.shininess = shininess;
-
+		
 		glGenBuffers(1,&(aMesh.uniformBlockIndex));
 		glBindBuffer(GL_UNIFORM_BUFFER,aMesh.uniformBlockIndex);
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(aMat), (void *)(&aMat), GL_STATIC_DRAW);
-
+		*/
 		myMeshes.push_back(aMesh);
 	}
 }
@@ -276,7 +275,10 @@ void RigidObject::color4_to_float4(const aiColor4D *c, float f[4])
 	f[3] = c->a;
 }
 
-void RigidObject::recursiveRender(const aiScene *sc, const aiNode* nd) {
+void RigidObject::recursiveRender(const aiNode* nd, 
+								  const glm::mat4 & proj, 
+								  const glm::mat4 & view, 
+								  const glm::mat4 & preMult) {
 
 	// Get node transformation matrix
 	aiMatrix4x4 m = nd->mTransformation;
@@ -287,7 +289,10 @@ void RigidObject::recursiveRender(const aiScene *sc, const aiNode* nd) {
 	glm::mat4 model;
 	copyAiMatrixToGLM(&m, model);
 	m_renderMgr->pushMatrix(model);
-		
+
+	glm::mat4 pvm = preMult * model;
+	
+	glUniformMatrix4fv(uniPVM, 1, GL_FALSE, glm::value_ptr(pvm));
 	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	// draw all meshes assigned to this node
@@ -305,7 +310,7 @@ void RigidObject::recursiveRender(const aiScene *sc, const aiNode* nd) {
 
 	// draw all children
 	for (unsigned int n=0; n < nd->mNumChildren; ++n){
-		recursiveRender(sc, nd->mChildren[n]);
+		recursiveRender(nd->mChildren[n], proj, view, pvm);
 	}
 
 	m_renderMgr->popMatrix();
