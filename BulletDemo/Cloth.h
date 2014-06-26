@@ -37,6 +37,7 @@ public:
 
 private:
 	static GLuint vbo;
+	static GLuint vao;
 	static GLint posAttrib;
 	static GLint colAttrib;
 	static GLuint sm_shaderProgram;

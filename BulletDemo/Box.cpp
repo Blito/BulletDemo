@@ -11,6 +11,7 @@
 GLint Box::uniPVM = 0;
 GLint Box::uniModel = 0;
 GLuint Box::vbo = 0;
+GLuint Box::vao = 0;
 GLint Box::posAttrib = 0;
 GLint Box::colAttrib = 0;
 GLuint Box::sm_shaderProgram = 0;
@@ -22,7 +23,6 @@ bool Box::load(GLuint shaderProgram) {
 	ShaderMgr * shaderMgr = ShaderMgr::GetSingletonPtr();
 
 	// Create Vertex Array Object
-    GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
@@ -103,6 +103,9 @@ bool Box::load(GLuint shaderProgram) {
 
 	uniPVM = glGetUniformLocation(shaderProgram, "pvm");
 	uniModel = glGetUniformLocation(shaderProgram, "model");
+
+	glEnableVertexAttribArray(0); // Disable VAO  
+	glBindVertexArray(0); // Disable VBO
 	
 	return true;
 }
@@ -141,17 +144,14 @@ void Box::render(const glm::mat4 & proj, const glm::mat4 & view, const glm::mat4
 
 	glm::mat4 pvm = preMult * model;
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
-	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+	glBindVertexArray(vao);
 
 	glUniformMatrix4fv(uniPVM, 1, GL_FALSE, glm::value_ptr(pvm));
 	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 
 }
 

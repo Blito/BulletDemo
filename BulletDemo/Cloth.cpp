@@ -11,6 +11,7 @@
 GLint Cloth::uniPVM = 0;
 GLint Cloth::uniModel = 0;
 GLuint Cloth::vbo = 0;
+GLuint Cloth::vao = 0;
 GLint Cloth::posAttrib = 0;
 GLint Cloth::colAttrib = 0;
 GLuint Cloth::sm_shaderProgram = 0;
@@ -21,7 +22,6 @@ bool Cloth::load(GLuint shaderProgram) {
 	ShaderMgr * shaderMgr = ShaderMgr::GetSingletonPtr();
 
 	// Create Vertex Array Object
-    GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
@@ -44,6 +44,9 @@ bool Cloth::load(GLuint shaderProgram) {
 
 	uniPVM = glGetUniformLocation(shaderProgram, "pvm");
 	uniModel = glGetUniformLocation(shaderProgram, "model");
+
+	glEnableVertexAttribArray(0); // Disable VAO 
+	glBindVertexArray(0); // Disable VBO
 	
 	return true;
 }
@@ -93,18 +96,17 @@ void Cloth::render(const glm::mat4 & proj, const glm::mat4 & view, const glm::ma
 
 	glm::mat4 pvm = preMult;
 	
+	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*vertCount, &(*vertices), GL_DYNAMIC_DRAW);
-	
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
-	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
 	glUniformMatrix4fv(uniPVM, 1, GL_FALSE, glm::value_ptr(pvm));
 	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	glDrawArrays(GL_TRIANGLES, 0, vertCount);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glEnableVertexAttribArray(0); // Disable VAO  
+	glBindVertexArray(0); // Disable VBO
 }
 
 bool Cloth::addToWorld(btDynamicsWorld * world) {

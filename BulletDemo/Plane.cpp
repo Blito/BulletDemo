@@ -11,6 +11,7 @@
 GLint Plane::uniPVM = 0;
 GLint Plane::uniModel = 0;
 GLuint Plane::vbo = 0;
+GLuint Plane::vao = 0;
 GLint Plane::posAttrib = 0;
 GLint Plane::colAttrib = 0;
 GLuint Plane::sm_shaderProgram = 0;
@@ -22,7 +23,6 @@ bool Plane::load(GLuint shaderProgram) {
 	ShaderMgr * shaderMgr = ShaderMgr::GetSingletonPtr();
 
 	// Create Vertex Array Object
-    GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
@@ -85,17 +85,14 @@ void Plane::render(const glm::mat4 & proj, const glm::mat4 & view, const glm::ma
 
 	glm::mat4 pvm = preMult * model;
 	
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
-	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+	glBindVertexArray(vao);
 
 	glUniformMatrix4fv(uniPVM, 1, GL_FALSE, glm::value_ptr(pvm));
 	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 
 }
 

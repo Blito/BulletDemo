@@ -13,7 +13,7 @@ GLint RigidObject::uniModel = 0;
 void RigidObject::load() {
 	ShaderMgr * shaderMgr = ShaderMgr::GetSingletonPtr();
 
-	sm_shaderProgram = shaderMgr->createProgram("../BulletDemo/shaders/dirlightdiffambpix.vert", "../BulletDemo/shaders/fragment.shader");
+	sm_shaderProgram = shaderMgr->createProgram("../BulletDemo/shaders/dirlightdiffambpix.vert", "../BulletDemo/shaders/dirlightdiffambpix.frag");
 	//sm_shaderProgram = shaderMgr->createProgram("../vertex.shader", "../fragment.shader");
 }
 
