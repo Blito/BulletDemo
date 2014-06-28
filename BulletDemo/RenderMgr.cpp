@@ -2,8 +2,8 @@
 
 
 RenderMgr::RenderMgr(void) {
+	m_globalTransf.push(glm::mat4());
 }
-
 
 RenderMgr::~RenderMgr(void) {
 }

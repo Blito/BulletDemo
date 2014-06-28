@@ -14,7 +14,7 @@ class RigidObject :
 {
 public:
 	static void load();
-	RigidObject (const std::string& filename);
+	RigidObject (const std::string& filename, float x, float y, float z);
 	~RigidObject (void);
 	void render (const glm::mat4 & proj, const glm::mat4 & view, const glm::mat4 & preMult);
 	bool addToWorld (btDynamicsWorld * world);
@@ -49,6 +49,8 @@ protected:
 	const aiScene * object;
 	int numVerts;
 	float scaleFactor;
+
+	glm::mat4 globalPos;
 
 	// map image filenames to textureIds
 	// pointer to texture Array

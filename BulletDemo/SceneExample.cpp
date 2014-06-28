@@ -60,7 +60,6 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 
 	proj = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 200.0f);
 
-
 	shaderMgr->debugGL("glBufferSubData");
 
 	GLuint shaderProgram = shaderMgr->createProgram("../BulletDemo/shaders/vertex.shader", "../BulletDemo/shaders/fragment.shader");
@@ -95,8 +94,8 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 
 	// Create house
 	std::string filename = "../resources/teapot.obj";
-	RenderedObject * house = new RigidObject(filename);
-	//toRender.push_back(house);
+	RenderedObject * house = new RigidObject(filename, 5.0, 0.0, 5.0);
+	toRender.push_back(house);
 }
 
 SceneExample::~SceneExample() {

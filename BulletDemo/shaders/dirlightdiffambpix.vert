@@ -1,11 +1,13 @@
 #version 330
 
-layout (std140) uniform Matrices {
-
-	mat4 projMatrix;
-	mat4 viewMatrix;
-	mat4 modelMatrix;
+layout(std140) uniform GlobalMatrices
+{
+    mat4 proj;
+    mat4 view;
 };
+
+uniform mat4 pvm;
+uniform mat4 model;
 
 in vec3 position;
 in vec3 normal;
@@ -17,7 +19,7 @@ out vec3 Normal;
 
 void main()
 {
-	Normal = normalize(vec3(viewMatrix * modelMatrix * vec4(normal,0.0)));	
+	Normal = normalize(vec3(view * model * vec4(normal,0.0)));	
 	TexCoord = vec2(texCoord);
-	gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(position,1.0);
+	gl_Position = pvm * vec4(position,1.0);
 }

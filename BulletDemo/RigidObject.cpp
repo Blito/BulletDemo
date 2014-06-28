@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "ShaderMgr.h"
 
@@ -17,7 +18,7 @@ void RigidObject::load() {
 	//sm_shaderProgram = shaderMgr->createProgram("../vertex.shader", "../fragment.shader");
 }
 
-RigidObject::RigidObject(const std::string& filename)
+RigidObject::RigidObject(const std::string& filename, float x, float y, float z)
 {
 
 	m_renderMgr = RenderMgr::GetSingletonPtr();
@@ -31,8 +32,9 @@ RigidObject::RigidObject(const std::string& filename)
 	uniPVM = glGetUniformLocation(sm_shaderProgram, "pvm");
 	uniModel = glGetUniformLocation(sm_shaderProgram, "model");
 
-}
+	globalPos =	glm::translate(globalPos, glm::vec3(x,y,z));
 
+}
 
 RigidObject::~RigidObject(void)
 {
@@ -204,9 +206,9 @@ void RigidObject::genVAOsAndUniformBuffer() {
 		}
 
 		// unbind buffers
-		/*glBindVertexArray(0);
+		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER,0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);*/
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
 	
 		// create material uniform buffer
 		aiMaterial *mtl = object->mMaterials[mesh->mMaterialIndex];
@@ -285,16 +287,18 @@ void RigidObject::recursiveRender(const aiNode* nd,
 	// OpenGL matrices are column major
 	m.Transpose();
 
+	float aux[16];
+	memcpy(aux,&m,sizeof(float) * 16);
+
 	// save model matrix and apply node transformation
 	glm::mat4 model;
-	copyAiMatrixToGLM(&m, model);
-	m_renderMgr->pushMatrix(model);
+	//copyAiMatrixToGLM(&m, model);
 
-	glm::mat4 pvm = preMult * model;
-	
+	glm::mat4 pvm;
+
 	glUniformMatrix4fv(uniPVM, 1, GL_FALSE, glm::value_ptr(pvm));
-	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
-
+	glUniformMatrix4fv(uniModel, 1, GL_FALSE, aux);
+	
 	// draw all meshes assigned to this node
 	for (unsigned int n=0; n < nd->mNumMeshes; ++n){
 		// bind material uniform
@@ -313,7 +317,6 @@ void RigidObject::recursiveRender(const aiNode* nd,
 		recursiveRender(nd->mChildren[n], proj, view, pvm);
 	}
 
-	m_renderMgr->popMatrix();
 }
 
 inline void RigidObject::copyAiMatrixToGLM(const aiMatrix4x4 *from, glm::mat4 &to)
