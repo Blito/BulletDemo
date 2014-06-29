@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 layout(std140) uniform GlobalMatrices
 {
@@ -20,6 +20,6 @@ out vec3 Normal;
 void main()
 {
 	Normal = normalize(vec3(view * model * vec4(normal,0.0)));	
-	TexCoord = vec2(texCoord);
+	TexCoord = texCoord;
 	gl_Position = pvm * vec4(position,1.0);
 }

@@ -39,6 +39,8 @@ ShaderMgr::~ShaderMgr(void) {
 
 GLuint ShaderMgr::createProgram(std::string vShaderPath, std::string fShaderPath) {
 
+	GLchar errorLog[2048] = {0};
+
 	std::string key = vShaderPath + ":" + fShaderPath; // in this case, legibility > efficiency
 
 	if (m_shaders.find(key) != m_shaders.end()) { // shader combination already created
@@ -83,9 +85,14 @@ GLuint ShaderMgr::createProgram(std::string vShaderPath, std::string fShaderPath
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &status);
 
 	std::cout << "shaderProgram: " << shaderProgram << " " << status << "=?" << GL_TRUE << std::endl;
-	GLchar errorLog[1024] = {0};
-    glGetProgramInfoLog(shaderProgram, 1024, NULL, errorLog);
-	std::cout << errorLog << std::endl;
+	if (status != GL_TRUE) {
+		glGetShaderInfoLog(vertexShader, 2048, NULL, errorLog);
+		std::cout << errorLog << std::endl;
+		glGetShaderInfoLog(fragmentShader, 2048, NULL, errorLog);
+		std::cout << errorLog << std::endl;
+		glGetProgramInfoLog(shaderProgram, 2048, NULL, errorLog);
+		std::cout << errorLog << std::endl;
+	}
 
 	m_shaders[key] = shaderProgram;
 

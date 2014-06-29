@@ -29,9 +29,6 @@ RigidObject::RigidObject(const std::string& filename, float x, float y, float z)
 
 	genVAOsAndUniformBuffer();
 
-	uniPVM = glGetUniformLocation(sm_shaderProgram, "pvm");
-	uniModel = glGetUniformLocation(sm_shaderProgram, "model");
-
 	globalPos =	glm::translate(globalPos, glm::vec3(x,y,z));
 
 }
@@ -259,6 +256,9 @@ void RigidObject::genVAOsAndUniformBuffer() {
 		*/
 		myMeshes.push_back(aMesh);
 	}
+
+	uniPVM = glGetUniformLocation(sm_shaderProgram, "pvm");
+	uniModel = glGetUniformLocation(sm_shaderProgram, "model");
 }
 
 void RigidObject::set_float4(float f[4], float a, float b, float c, float d)
@@ -314,7 +314,7 @@ void RigidObject::recursiveRender(const aiNode* nd,
 
 	// draw all children
 	for (unsigned int n=0; n < nd->mNumChildren; ++n){
-		recursiveRender(nd->mChildren[n], proj, view, pvm);
+		//recursiveRender(nd->mChildren[n], proj, view, pvm);
 	}
 
 }
