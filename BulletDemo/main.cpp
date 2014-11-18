@@ -8,7 +8,7 @@
 
 int	main(int argc, char *argv[])
 {
-	OpenGLWindow window(800, 600);
+	LittleLab::Graphics::OpenGLWindow window(800, 600);
 	SceneExample scene;
 
 	window.setScene(&scene);

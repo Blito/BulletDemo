@@ -23,7 +23,7 @@ protected:
 
 	static GLuint sm_shaderProgram;
 
-	RenderMgr * m_renderMgr;
+	LittleLab::Graphics::RenderMgr * m_renderMgr;
 
 	// Information to render each assimp node
 	struct MyMesh{

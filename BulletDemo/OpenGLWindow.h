@@ -5,39 +5,46 @@
 #include <gl/GLU.h>
 #include "Scene.h"
 
-/**
- * Main window in the game.
- * Has a current scene, and periodically calls its update and render methods.
- * Implemented using SDL.
- */
-class OpenGLWindow
-{
-public:
-	/**
-	 * Constructor.
-	 * Initializes SDL (OpenGL) context.
-	 */
-	OpenGLWindow(int width, int height);
-	~OpenGLWindow(void);
+namespace LittleLab {
 
-	/**
-	 * Sets the scene to be updated/rendered.
-	 */
-	void setScene(Scene * scene);
+	namespace Graphics {
 
-	/**
-	 * Starts the execution.
-	 */
-	void run();
+		/**
+		 * Main window in the game.
+		 * Has a current scene, and periodically calls its update and render methods.
+		 * Implemented using SDL.
+		 */
+		class OpenGLWindow
+		{
+		public:
+			/**
+			 * Constructor.
+			 * Initializes SDL (OpenGL) context.
+			 */
+			OpenGLWindow(int width, int height);
+			~OpenGLWindow(void);
 
-private:
-	void renderFrame();
-	void Display_InitGL();
-	int Display_SetViewport(int width, int height);
+			/**
+			 * Sets the scene to be updated/rendered.
+			 */
+			void setScene(Scene * scene);
 
-	SDL_Window* displayWindow;
-	SDL_Renderer* displayRenderer;
-	Scene * activeScene;
-	Uint32 elapsedTime;
-};
+			/**
+			 * Starts the execution.
+			 */
+			void run();
 
+		private:
+			void renderFrame();
+			void Display_InitGL();
+			int Display_SetViewport(int width, int height);
+
+			SDL_Window* displayWindow;
+			SDL_Renderer* displayRenderer;
+			Scene * activeScene;
+			Uint32 elapsedTime;
+		};
+
+	}
+
+}

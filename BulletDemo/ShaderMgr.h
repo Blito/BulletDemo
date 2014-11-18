@@ -5,40 +5,47 @@
 #include <string>
 #include <map>
 
-class ShaderMgr : public Singleton<ShaderMgr>
-{
-public:
-	// Shader variables
-	static const std::string c_verticesAttr;
-	static const std::string c_colorAttr;
-	static const std::string c_texCoordAttr;
-	static const std::string c_normalAttr;
+namespace LittleLab {
 
-	// Shader uniforms
-	static const std::string c_uniMatrices;
-	static const std::string c_uniPVM;
-	static const std::string c_uniProj;
-	static const std::string c_uniView;
-	static const std::string c_uniModel;
+	namespace Graphics {
 
-	ShaderMgr(void);
-	~ShaderMgr(void);
+		class ShaderMgr : public Utils::Singleton<ShaderMgr>
+		{
+		public:
+			// Shader variables
+			static const std::string c_verticesAttr;
+			static const std::string c_colorAttr;
+			static const std::string c_texCoordAttr;
+			static const std::string c_normalAttr;
 
-	GLuint createProgram(std::string vShaderPath, std::string fShaderPath);
-	void useShader(GLuint shaderProgram);
-	GLuint getAttribLocation(std::string attribute);
-	void debugGL(const char * function);
-	const GLuint getUBO() const;
+			// Shader uniforms
+			static const std::string c_uniMatrices;
+			static const std::string c_uniPVM;
+			static const std::string c_uniProj;
+			static const std::string c_uniView;
+			static const std::string c_uniModel;
 
-private:
-	const char * readFile(const char * path);
+			ShaderMgr(void);
+			~ShaderMgr(void);
 
-	std::map<std::string, GLuint> m_shaders;
-	std::map<std::string, GLuint> m_attributesLocations;
+			GLuint createProgram(std::string vShaderPath, std::string fShaderPath);
+			void useShader(GLuint shaderProgram);
+			GLuint getAttribLocation(std::string attribute);
+			void debugGL(const char * function);
+			const GLuint getUBO() const;
 
-	GLuint m_globalMatricesLoc;
-	GLuint m_globalMatricesUBO;
+		private:
+			const char * readFile(const char * path);
 
-	GLuint m_activeShader;
-};
+			std::map<std::string, GLuint> m_shaders;
+			std::map<std::string, GLuint> m_attributesLocations;
 
+			GLuint m_globalMatricesLoc;
+			GLuint m_globalMatricesUBO;
+
+			GLuint m_activeShader;
+		};
+
+	}
+
+}

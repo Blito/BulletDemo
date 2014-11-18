@@ -9,9 +9,6 @@
 #include <vector>
 #include <math.h>
 #include <bullet\BulletDynamics\Dynamics\btDiscreteDynamicsWorld.h>
-#include <bullet\BulletCollision\BroadphaseCollision\btDispatcher.h>
-#include <bullet\BulletCollision\BroadphaseCollision\btDbvtBroadphase.h>
-#include <bullet\BulletDynamics\ConstraintSolver\btSequentialImpulseConstraintSolver.h>
 #include <bullet\BulletSoftBody\btSoftBodySolvers.h>
 #include <bullet\BulletCollision\CollisionDispatch\btCollisionConfiguration.h>
 #include <bullet\BulletDynamics\Dynamics\btRigidBody.h>
@@ -19,6 +16,7 @@
 
 #include "RenderMgr.h"
 #include "ShaderMgr.h"
+#include "PhysicsMgr.h"
 
 /**
  * Example scene.
@@ -26,7 +24,7 @@
  * User can move and shoot things with WASD, up, down, and click.
  */
 class SceneExample :
-	public Scene
+	public LittleLab::Scene
 {
 public:
 	/**
@@ -57,8 +55,9 @@ private:
 	void createText(const std::string &message, SDL_Color color);
 
 	// Managers
-	RenderMgr * renderMgr;	
-	ShaderMgr * shaderMgr;
+	LittleLab::Graphics::RenderMgr * renderMgr;	
+	LittleLab::Graphics::ShaderMgr * shaderMgr;
+	LittleLab::Physics::PhysicsMgr * physicsMgr;
 
 	// Camera
 	float angleH, angleV;
@@ -70,11 +69,6 @@ private:
 
 	// Physics
 	btSoftRigidDynamicsWorld * world;
-	btDispatcher * dispatcher;
-	btCollisionConfiguration * collisionConfig;
-	btBroadphaseInterface * broadphase;
-	btConstraintSolver * solver;
-	btSoftBodySolver * softbodySolver;
 	std::vector<RenderedObject*> toRender;
 	btRigidBody * playerCollider;
 	float timeElapsed;

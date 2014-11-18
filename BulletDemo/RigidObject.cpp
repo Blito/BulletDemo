@@ -11,7 +11,7 @@ GLint RigidObject::uniPVM = 0;
 GLint RigidObject::uniModel = 0;
 
 void RigidObject::load() {
-	ShaderMgr * shaderMgr = ShaderMgr::GetSingletonPtr();
+	LittleLab::Graphics::ShaderMgr * shaderMgr = LittleLab::Graphics::ShaderMgr::GetSingletonPtr();
 
 	sm_shaderProgram = shaderMgr->createProgram("../BulletDemo/shaders/dirlightdiffambpix.vert", "../BulletDemo/shaders/dirlightdiffambpix.frag");
 	//sm_shaderProgram = shaderMgr->createProgram("../vertex.shader", "../fragment.shader");
@@ -20,7 +20,7 @@ void RigidObject::load() {
 RigidObject::RigidObject(const std::string& filename)
 {
 
-	m_renderMgr = RenderMgr::GetSingletonPtr();
+	m_renderMgr = LittleLab::Graphics::RenderMgr::GetSingletonPtr();
 
 	if (!import3DFromFile(filename)) {
 		return;
@@ -127,12 +127,12 @@ void RigidObject::getBoundingBoxForNode (const aiNode* nd,
 
 void RigidObject::genVAOsAndUniformBuffer() {
 
-	ShaderMgr * shaderMgr = ShaderMgr::GetSingletonPtr();
+	LittleLab::Graphics::ShaderMgr * shaderMgr = LittleLab::Graphics::ShaderMgr::GetSingletonPtr();
 
 	// Vertex Attribute Locations
-	GLuint vertexLoc = shaderMgr->getAttribLocation(ShaderMgr::c_verticesAttr);
-	GLuint normalLoc = shaderMgr->getAttribLocation(ShaderMgr::c_normalAttr);
-	GLuint texCoordLoc = shaderMgr->getAttribLocation(ShaderMgr::c_texCoordAttr);
+	GLuint vertexLoc = shaderMgr->getAttribLocation(LittleLab::Graphics::ShaderMgr::c_verticesAttr);
+	GLuint normalLoc = shaderMgr->getAttribLocation(LittleLab::Graphics::ShaderMgr::c_normalAttr);
+	GLuint texCoordLoc = shaderMgr->getAttribLocation(LittleLab::Graphics::ShaderMgr::c_texCoordAttr);
 
 	// Uniform Bindings Points
 	GLuint matricesUniLoc = 1, materialUniLoc = 2;

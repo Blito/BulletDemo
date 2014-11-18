@@ -1,9 +1,4 @@
 #include "SceneExample.h"
-#include <bullet\LinearMath\btTransform.h>
-#include <bullet\BulletSoftBody\btSoftBodyRigidBodyCollisionConfiguration.h>
-#include <bullet\BulletSoftBody\btDefaultSoftBodySolver.h>
-#include <bullet\BulletSoftBody\btSoftRigidDynamicsWorld.h>
-#include <bullet\BulletCollision\CollisionShapes\btBoxShape.h>
 #include "Box.h"
 #include "Plane.h"
 #include "Cloth.h"
@@ -22,19 +17,24 @@
 #define MOUSE_SENSITIVITY 0.8f
 #define FONT_FILE "resources/consola.ttf"
 
-SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
-							   xCam(XCAM), yCam(YCAM), zCam(ZCAM), 
-							   quit(false),
-							   timeElapsed(0), loops(0),
-							   mov_speed(MOV_SPEED), rot_speed(ROT_SPEED), mouse_sensitivity(MOUSE_SENSITIVITY) {
+using namespace LittleLab;
+
+SceneExample::SceneExample() : 
+	angleH(ANGLEH), angleV(ANGLEV),
+	xCam(XCAM), yCam(YCAM), zCam(ZCAM),
+	quit(false),
+	timeElapsed(0), loops(0),
+	mov_speed(MOV_SPEED), rot_speed(ROT_SPEED), mouse_sensitivity(MOUSE_SENSITIVITY) {
+
 	lx = sin(angleH);
 	ly = sin(angleV);
 	lz = -cos(angleH);
 
 	// Managers init
 	// TODO: GET THIS OUT OF THE SCENEEXAMPLE!1!!
-	renderMgr = new RenderMgr();
-	shaderMgr = new ShaderMgr();
+	renderMgr = new Graphics::RenderMgr();
+	shaderMgr = new Graphics::ShaderMgr();
+	physicsMgr = new Physics::PhysicsMgr();
 
 	// Init fonts
 	if (TTF_Init() != 0) {
@@ -49,14 +49,8 @@ SceneExample::SceneExample() : angleH(ANGLEH), angleV(ANGLEV),
 		return;
 	}
 
-	// Physics init
-	collisionConfig = new btSoftBodyRigidBodyCollisionConfiguration();
-	dispatcher = new btCollisionDispatcher(collisionConfig);
-	broadphase = new btDbvtBroadphase();
-	solver = new btSequentialImpulseConstraintSolver();
-	softbodySolver = new btDefaultSoftBodySolver();
-	world = new btSoftRigidDynamicsWorld(dispatcher, broadphase, solver, collisionConfig, softbodySolver);
-	world->setGravity(btVector3(0,-10.0f,0));
+	// physics init
+	world = physicsMgr->getWorld();
 
 	proj = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 200.0f);
 
@@ -103,13 +97,6 @@ SceneExample::~SceneExample() {
 	//Clean up the surface and font
 	//SDL_FreeSurface(surf);
 	TTF_CloseFont(font);
-
-	// Physics
-	delete world;
-	delete solver;
-	delete broadphase;
-	delete dispatcher;
-	delete collisionConfig;
 }
 
 void SceneExample::update(Uint32 elapsedTimeInMillis) {
@@ -201,7 +188,7 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
 	}
 	
 	yCam = yCam > 0 ? yCam - 0.005f : 0;
-	world->stepSimulation((float)elapsedTimeInMillis/1000.0f);
+	physicsMgr->getWorld()->stepSimulation((float)elapsedTimeInMillis/1000.0f);
 }
 
 void SceneExample::render() {

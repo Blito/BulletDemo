@@ -1,39 +1,42 @@
 #pragma once
 #include <SDL2/SDL.h>
 
-/**
- * Basic interface for scenes.
- */
-class Scene
-{
-public:
+namespace LittleLab {
 
 	/**
-	 * Calculate updates since last time update() was called.
-	 * 
-	 * @param elapsedTimeInMillis time elapsed since last call.
+	 * Basic interface for scenes.
 	 */
-	virtual void update(Uint32 elapsedTimeInMillis) = 0;
+	class Scene
+	{
+	public:
 
-	/**
-	 * Render scene.
-	 */
-	virtual void render() = 0;
+		/**
+		 * Calculate updates since last time update() was called.
+		 *
+		 * @param elapsedTimeInMillis time elapsed since last call.
+		 */
+		virtual void update(Uint32 elapsedTimeInMillis) = 0;
 
-	/**
-	 * Lets the game manager know whether this scene has ended.
-	 * 
-	 * @return true if scene has ended.
-	 */
-	virtual bool isQuit() = 0;
+		/**
+		 * Render scene.
+		 */
+		virtual void render() = 0;
 
-	/**
-	 * Sets the renderer for this scene.
-	 * (To be used in fonts rendering)
-	 */
-	void setRenderer(SDL_Renderer * r) { renderer = r; }
+		/**
+		 * Lets the game manager know whether this scene has ended.
+		 *
+		 * @return true if scene has ended.
+		 */
+		virtual bool isQuit() = 0;
 
-protected:
-	SDL_Renderer * renderer;
-};
+		/**
+		 * Sets the renderer for this scene.
+		 * (To be used in fonts rendering)
+		 */
+		void setRenderer(SDL_Renderer * r) { renderer = r; }
 
+	protected:
+		SDL_Renderer * renderer;
+	};
+
+}

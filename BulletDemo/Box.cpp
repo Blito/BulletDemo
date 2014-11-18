@@ -20,7 +20,7 @@ bool Box::load(GLuint shaderProgram) {
 
 	sm_shaderProgram = shaderProgram;
 
-	ShaderMgr * shaderMgr = ShaderMgr::GetSingletonPtr();
+	LittleLab::Graphics::ShaderMgr * shaderMgr = LittleLab::Graphics::ShaderMgr::GetSingletonPtr();
 
 	// Create Vertex Array Object
     glGenVertexArrays(1, &vao);
@@ -92,12 +92,12 @@ bool Box::load(GLuint shaderProgram) {
 	
     // Specify the layout of the vertex data
 	// in vec2 position;
-    posAttrib = shaderMgr->getAttribLocation(ShaderMgr::c_verticesAttr);
+	posAttrib = shaderMgr->getAttribLocation(LittleLab::Graphics::ShaderMgr::c_verticesAttr);
     glEnableVertexAttribArray(posAttrib);
     glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
 
 	// in vec3 color;
-	colAttrib = shaderMgr->getAttribLocation(ShaderMgr::c_colorAttr);
+	colAttrib = shaderMgr->getAttribLocation(LittleLab::Graphics::ShaderMgr::c_colorAttr);
 	glEnableVertexAttribArray(colAttrib);
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
@@ -133,7 +133,7 @@ Box::~Box(void)
 
 void Box::render(const glm::mat4 & proj, const glm::mat4 & view, const glm::mat4 & preMult) {
 	
-	ShaderMgr::GetSingleton().useShader(sm_shaderProgram);
+	LittleLab::Graphics::ShaderMgr::GetSingleton().useShader(sm_shaderProgram);
 		
 	float mat[16];
 	btTransform t;
