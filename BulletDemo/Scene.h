@@ -1,6 +1,10 @@
 #pragma once
 #include <SDL2/SDL.h>
 
+#include "RenderMgr.h"
+#include "ShaderMgr.h"
+#include "PhysicsMgr.h"
+
 namespace LittleLab {
 
 	/**
@@ -36,6 +40,18 @@ namespace LittleLab {
 		void setRenderer(SDL_Renderer * r) { renderer = r; }
 
 	protected:
+
+		Scene() :
+			physicsMgr(Physics::PhysicsMgr::GetSingleton()),
+			renderMgr(Graphics::RenderMgr::GetSingleton()),
+			shaderMgr(Graphics::ShaderMgr::GetSingleton())
+		{};
+
+		// Managers
+		LittleLab::Graphics::RenderMgr & renderMgr;
+		LittleLab::Graphics::ShaderMgr & shaderMgr;
+		LittleLab::Physics::PhysicsMgr & physicsMgr;
+
 		SDL_Renderer * renderer;
 	};
 

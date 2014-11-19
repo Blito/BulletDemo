@@ -20,11 +20,18 @@
 using namespace LittleLab;
 
 SceneExample::SceneExample() : 
-	angleH(ANGLEH), angleV(ANGLEV),
-	xCam(XCAM), yCam(YCAM), zCam(ZCAM),
+	angleH(ANGLEH), 
+	angleV(ANGLEV),
+	xCam(XCAM),
+	yCam(YCAM),
+	zCam(ZCAM),
 	quit(false),
-	timeElapsed(0), loops(0),
-	mov_speed(MOV_SPEED), rot_speed(ROT_SPEED), mouse_sensitivity(MOUSE_SENSITIVITY) {
+	timeElapsed(0), 
+	loops(0),
+	mov_speed(MOV_SPEED),
+	rot_speed(ROT_SPEED),
+	mouse_sensitivity(MOUSE_SENSITIVITY)
+{
 
 	lx = sin(angleH);
 	ly = sin(angleV);
@@ -32,9 +39,6 @@ SceneExample::SceneExample() :
 
 	// Managers init
 	// TODO: GET THIS OUT OF THE SCENEEXAMPLE!1!!
-	renderMgr = new Graphics::RenderMgr();
-	shaderMgr = new Graphics::ShaderMgr();
-	physicsMgr = new Physics::PhysicsMgr();
 
 	// Init fonts
 	if (TTF_Init() != 0) {
@@ -50,16 +54,16 @@ SceneExample::SceneExample() :
 	}
 
 	// physics init
-	world = physicsMgr->getWorld();
+	world = physicsMgr.getWorld();
 
 	proj = glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 200.0f);
 
 
-	shaderMgr->debugGL("glBufferSubData");
+	shaderMgr.debugGL("glBufferSubData");
 
-	GLuint shaderProgram = shaderMgr->createProgram("../BulletDemo/shaders/vertex.shader", "../BulletDemo/shaders/fragment.shader");
+	GLuint shaderProgram = shaderMgr.createProgram("../BulletDemo/shaders/vertex.shader", "../BulletDemo/shaders/fragment.shader");
 	
-	glBindBuffer(GL_UNIFORM_BUFFER, shaderMgr->getUBO());
+	glBindBuffer(GL_UNIFORM_BUFFER, shaderMgr.getUBO());
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(proj));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -188,7 +192,7 @@ void SceneExample::update(Uint32 elapsedTimeInMillis) {
 	}
 	
 	yCam = yCam > 0 ? yCam - 0.005f : 0;
-	physicsMgr->getWorld()->stepSimulation((float)elapsedTimeInMillis/1000.0f);
+	physicsMgr.getWorld()->stepSimulation((float)elapsedTimeInMillis/1000.0f);
 }
 
 void SceneExample::render() {
@@ -201,7 +205,7 @@ void SceneExample::render() {
 
 	glm::mat4 parentMatrix = proj * view;
 
-	glBindBuffer(GL_UNIFORM_BUFFER, shaderMgr->getUBO());
+	glBindBuffer(GL_UNIFORM_BUFFER, shaderMgr.getUBO());
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	
